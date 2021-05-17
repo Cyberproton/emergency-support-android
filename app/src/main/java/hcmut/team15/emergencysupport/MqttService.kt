@@ -8,7 +8,7 @@ import org.eclipse.paho.client.mqttv3.*
 class MqttService(context: Context, val subscriptionTopic: String) {
     val serverUri = "tcp://io.adafruit.com:1883"
     val username = "cyberproton"
-    val password = "aio_vPoX38BRFD2s6617K5NiZOFVb5MP"
+    val password = "aio_zHjl01weM6rboM3sEuSlJ9wDTbIX"
     val clientId = MqttClient.generateClientId()
     val mqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
 
