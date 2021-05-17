@@ -1,11 +1,15 @@
 package hcmut.team15.emergencysupport
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
+import org.eclipse.paho.client.mqttv3.MqttMessage
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -14,12 +18,13 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
     // Access from emulator
-    private val baseUrl = "http://10.0.2.2:3000"
+    private val baseUrl = "http://10.0.2.2:3000/"
     private val mainRoute: Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     private val helloInterface: HelloInterface = mainRoute.create(HelloInterface::class.java)
+    private lateinit var buttonTriggerService: MqttService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,15 +56,42 @@ class MainActivity : AppCompatActivity() {
         helloPostButton.setOnClickListener {
             handleHelloDialog()
         }
+
+        buttonTriggerService = MqttService(this, "cyberproton/feeds/button")
+        buttonTriggerService.setCallback(object: MqttCallbackExtended {
+            override fun connectionLost(cause: Throwable?) {
+                Log.w("mqtt-connection", "Disconnected from server")
+            }
+
+            override fun messageArrived(topic: String?, message: MqttMessage?) {
+                val m = message.toString()
+                if (m == "1") {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Message from Adafruit: topic=$topic, message=${message.toString()}, Button pressed",
+                        Toast.LENGTH_LONG,
+                    ).show()
+                }
+            }
+
+            override fun deliveryComplete(token: IMqttDeliveryToken?) {
+
+            }
+
+            override fun connectComplete(reconnect: Boolean, serverURI: String?) {
+                Log.w("mqtt-connection", serverURI?:"Server URI not found")
+            }
+
+        })
     }
 
-    fun handleHelloDialog() {
+    private fun handleHelloDialog() {
         val view = layoutInflater.inflate(R.layout.hello_dialog, null)
         val dialog = AlertDialog.Builder(this)
         dialog.setView(view).show()
         val nameInput = view.findViewById<EditText>(R.id.nameInput)
         val nameSubmitButton = view.findViewById<Button>(R.id.submitName)
-        println("dsfsdfdfdsf")
+
         nameSubmitButton.setOnClickListener { view ->
             val call = helloInterface.executePostHello(mapOf("helloMessage" to nameInput.text.toString()))
             call.enqueue(object: Callback<HelloResponse> {
