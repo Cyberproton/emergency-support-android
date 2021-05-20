@@ -1,5 +1,6 @@
 package hcmut.team15.emergencysupport
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -83,6 +84,14 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+
+        val emergencyBtn = findViewById<Button>(R.id.egcy_button)
+        emergencyBtn.setOnClickListener { view->
+            val intent: Intent = Intent(this, EmergencyActivity::class.java);
+            startActivity(intent)
+        }
+
+
     }
 
     private fun handleHelloDialog() {
