@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">EmergencySupport</string>
+    <string name="login_btn">SIGN IN</string>
+    <string name="register_btn">REGISTER</string>
+    <string name="sign_up">SIGN UP</string>
+    <string name="email_txt"> Email:</string>
+    <string name="password"> Password:</string>
+    <string name="create_account">Create Account</string>
+    <string name="login_account">Login</string>
+    <string name="name"><font size="15px"> Name:</font></string>
+    <string name="birth_day"> Birth Day:</string>
+    <string name="blood_type"> Blood Type:</string>
+    <string name="content_description_arrow_back_image">Back Arrow</string>
+    <string name="register_create">Create</string>
+    <string name="create_account_via_social_media">Create account using social media</string>
+    <string name="register_notice">Dont have an account?</string>
+    <string name="fb_btn">Facebook</string>
+    <string name="tw_btn">Twitter</string>
+    <string name="google_btn">Google</string>
 </resources>
