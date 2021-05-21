@@ -8,20 +8,6 @@
     android:padding="16dp"
     >
 
-    <ImageView
-        android:id="@+id/iv_back"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:background="@null"
-        android:contentDescription="@string/content_description_arrow_back_image"
-        android:src="@drawable/ic_baseline_arrow_back_24"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.042"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.022" />
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
@@ -94,25 +80,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:onClick="onClick"
         android:text="@string/login_btn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.049"
+        app:layout_constraintHorizontal_bias="0.912"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword"
-        app:layout_constraintVertical_bias="0.115" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <LinearLayout
-        android:layout_width="281dp"
-        android:layout_height="21dp"
+        android:layout_width="279dp"
+        android:layout_height="74dp"
+        android:layout_marginTop="4dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.79">
+        app:layout_constraintTop_toBottomOf="@+id/sign_in_btn"
+        app:layout_constraintVertical_bias="0.0">
 
         <TextView
             android:id="@+id/textView2"
@@ -124,14 +109,12 @@
         <TextView
             android:id="@+id/sign_up_text"
             android:layout_width="0dp"
-            android:textColor="#000dff"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/sign_up"
             android:clickable="true"
             android:focusable="true"
-            />
-
+            android:text="@string/sign_up"
+            android:textColor="#000dff" />
     </LinearLayout>
 
 

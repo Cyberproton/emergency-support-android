@@ -8,31 +8,24 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.content.Intent;
+import org.w3c.dom.Text;
+
 public class LoginActivity extends AppCompatActivity {
-    TextView txtNoiDung;
-    Button btn_click;
-    Button arrow_back;
-    ImageView click;
+    TextView t1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
 
-        btn_click = (Button) findViewById(R.id.sign_in_btn);
-        btn_click.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setContentView(R.layout.register_activity);
-            }
-        });
-        click = (ImageView) findViewById(R.id.iv_back);
-        click.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setContentView(R.layout.login_activity);
-            }
-        });
+        t1 = (TextView) findViewById(R.id.sign_up_text);
 
+        t1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(LoginActivity.this, RegisterActivity1.class);
+                startActivity(myIntent);
+            }
+        });
     }
-
 }
