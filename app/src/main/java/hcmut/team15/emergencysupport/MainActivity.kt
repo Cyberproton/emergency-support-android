@@ -1,89 +1,43 @@
 package hcmut.team15.emergencysupport
 
+import android.content.ComponentName
 import android.content.Intent
+import android.content.ServiceConnection
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
-import org.eclipse.paho.client.mqttv3.MqttMessage
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : AppCompatActivity() {
     // Access from emulator
-    private val baseUrl = "http://10.0.2.2:3000/"
-    private val mainRoute: Retrofit = Retrofit.Builder()
-        .baseUrl(baseUrl)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    private val helloInterface: HelloInterface = mainRoute.create(HelloInterface::class.java)
-    private lateinit var buttonTriggerService: MqttService
+    private var locationService: LocationService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val helloButton = findViewById<Button>(R.id.hello)
-        helloButton.setOnClickListener { view ->
-            val call = helloInterface.executeGetHello()
-            call.enqueue(object: Callback<HelloResponse> {
-                override fun onResponse(call: Call<HelloResponse>, response: Response<HelloResponse>) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Response from server: ${response.body()?.helloMessage}",
-                        Toast.LENGTH_LONG,
-                    ).show()
+        val loginButton = findViewById<Button>(R.id.login_button)
+        loginButton.setOnClickListener {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener( OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w("messaging-service", "Fetching FCM registration token failed", task.exception)
+                    return@OnCompleteListener
                 }
 
-                override fun onFailure(call: Call<HelloResponse>, t: Throwable) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Error: ${t.message}",
-                        Toast.LENGTH_LONG,
-                    ).show()
-                }
+                // Get new FCM registration token
+                val token = task.result
+
+                // Log and toast
+                Log.d("messaging-service", "token=$token")
+                Toast.makeText(baseContext, "token=$token", Toast.LENGTH_SHORT).show()
             })
         }
-
-        val helloPostButton = findViewById<Button>(R.id.posthello)
-        helloPostButton.setOnClickListener {
-            handleHelloDialog()
-        }
-
-        buttonTriggerService = MqttService(this, "cyberproton/feeds/button")
-        buttonTriggerService.setCallback(object: MqttCallbackExtended {
-            override fun connectionLost(cause: Throwable?) {
-                Log.w("mqtt-connection", "Disconnected from server")
-            }
-
-            override fun messageArrived(topic: String?, message: MqttMessage?) {
-                val m = message.toString()
-                if (m == "1") {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Message from Adafruit: topic=$topic, message=${message.toString()}, Button pressed",
-                        Toast.LENGTH_LONG,
-                    ).show()
-                }
-            }
-
-            override fun deliveryComplete(token: IMqttDeliveryToken?) {
-
-            }
-
-            override fun connectComplete(reconnect: Boolean, serverURI: String?) {
-                Log.w("mqtt-connection", serverURI?:"Server URI not found")
-            }
-
-        })
 
         val emergencyBtn = findViewById<Button>(R.id.egcy_button)
         emergencyBtn.setOnClickListener { view->
@@ -94,32 +48,24 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun handleHelloDialog() {
-        val view = layoutInflater.inflate(R.layout.hello_dialog, null)
-        val dialog = AlertDialog.Builder(this)
-        dialog.setView(view).show()
-        val nameInput = view.findViewById<EditText>(R.id.nameInput)
-        val nameSubmitButton = view.findViewById<Button>(R.id.submitName)
+    override fun onStart() {
+        super.onStart()
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                bindService(Intent(this, LocationService::class.java), object : ServiceConnection {
+                    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                        locationService = (service as? LocationService.LocalBinder)?.service
+                        locationService?.requestLocationUpdates()
+                    }
 
-        nameSubmitButton.setOnClickListener { view ->
-            val call = helloInterface.executePostHello(mapOf("helloMessage" to nameInput.text.toString()))
-            call.enqueue(object: Callback<HelloResponse> {
-                override fun onResponse(call: Call<HelloResponse>, response: Response<HelloResponse>) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Response from server: ${response.body()?.helloMessage}",
-                        Toast.LENGTH_LONG,
-                    ).show()
-                }
-
-                override fun onFailure(call: Call<HelloResponse>, t: Throwable) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Error: ${t.message}",
-                        Toast.LENGTH_LONG,
-                    ).show()
-                }
-            })
+                    override fun onServiceDisconnected(name: ComponentName?) {
+                        locationService?.removeLocationUpdates()
+                        locationService = null
+                    }
+                }, BIND_AUTO_CREATE)
+            } else {
+                requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), -1)
+            }
         }
     }
 }
