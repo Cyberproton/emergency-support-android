@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "277078721554",
+    "project_id": "emergency-support-3d510",
+    "storage_bucket": "emergency-support-3d510.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277078721554:android:eaf850a876918d7bd6c4cb",
+        "android_client_info": {
+          "package_name": "hcmut.team15.emergencysupport"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "277078721554-cl7g4at39627td744b07uhhqo1qhutb5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxgjPxlPQq6Gjc1VkdbuwgGZQHEyDLu34"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "277078721554-cl7g4at39627td744b07uhhqo1qhutb5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
