@@ -72,6 +72,7 @@ public class MainApplication extends Application implements Application.Activity
                     if (!isEmergencyActivityVisible && !isEmergencyActivityResumed) {
                         Intent intent = new Intent(getBaseContext(), EmergencyActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra("startSignal", true);
                         startActivity(intent);
                     }
                 }
@@ -137,8 +138,8 @@ public class MainApplication extends Application implements Application.Activity
         return instance;
     }
 
-    public static MqttService getMqttService() {
-        return instance.mqttService;
+    public MqttService getMqttService() {
+        return mqttService;
     }
 
     public Retrofit getRetrofit() {
