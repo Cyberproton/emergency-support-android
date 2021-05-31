@@ -64,7 +64,7 @@ public class LocationService extends Service {
                 .create()
                 .setInterval(15000)
                 .setFastestInterval(5000)
-                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         fastLocationRequest = LocationRequest
                 .create()
                 .setInterval(5000)
