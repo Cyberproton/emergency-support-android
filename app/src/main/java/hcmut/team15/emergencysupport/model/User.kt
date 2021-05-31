@@ -1,4 +1,4 @@
-package hcmut.team15.emergencysupport
+package hcmut.team15.emergencysupport.model
 
 data class User(
     val username: String,

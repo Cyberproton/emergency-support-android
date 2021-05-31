@@ -1,8 +1,10 @@
-package hcmut.team15.emergencysupport;
+package hcmut.team15.emergencysupport.emergency;
 
 import java.util.List;
 import java.util.Map;
 
+import hcmut.team15.emergencysupport.model.Case;
+import hcmut.team15.emergencysupport.model.User;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Header;

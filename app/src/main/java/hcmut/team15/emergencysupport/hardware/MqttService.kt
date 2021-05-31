@@ -1,14 +1,15 @@
-package hcmut.team15.emergencysupport
+package hcmut.team15.emergencysupport.hardware
 
 import android.content.Context
 import android.util.Log
+import hcmut.team15.emergencysupport.R
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 
 class MqttService(context: Context, val subscriptionTopic: String) {
     val serverUri = "tcp://io.adafruit.com:1883"
     val username = "cyberproton"
-    val password = "aio_AcXd51jdJhEotu24Dn1FMkpgQCMa"
+    val password = context.getString(R.string.adafruit_test_password)
     val clientId = MqttClient.generateClientId()
     val mqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
 

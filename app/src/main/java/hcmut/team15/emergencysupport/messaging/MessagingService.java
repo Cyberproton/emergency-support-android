@@ -1,4 +1,4 @@
-package hcmut.team15.emergencysupport;
+package hcmut.team15.emergencysupport.messaging;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -13,6 +13,8 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+
+import hcmut.team15.emergencysupport.MainApplication;
 
 public class MessagingService extends FirebaseMessagingService {
     @Override

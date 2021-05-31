@@ -1,4 +1,4 @@
-package hcmut.team15.emergencysupport;
+package hcmut.team15.emergencysupport.emergency;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -8,10 +8,12 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 
-public class Emergency_fragment1 extends Fragment {
+import hcmut.team15.emergencysupport.R;
+
+public class Emergency_fragment2 extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment1_emergency, container, false);
+        return inflater.inflate(R.layout.fragment2_emergency, container, false);
     }
 }

@@ -1,4 +1,4 @@
-package hcmut.team15.emergencysupport;
+package hcmut.team15.emergencysupport.emergency;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,12 +8,13 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
-import android.widget.ToggleButton;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import hcmut.team15.emergencysupport.MainApplication;
+import hcmut.team15.emergencysupport.R;
+import hcmut.team15.emergencysupport.model.Case;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

@@ -2,20 +2,30 @@
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import hcmut.team15.emergencysupport.hardware.MqttService;
+import hcmut.team15.emergencysupport.emergency.EmergencyActivity;
+import hcmut.team15.emergencysupport.location.LocationService;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -24,8 +34,10 @@ public class MainApplication extends Application implements Application.Activity
     private static boolean isEmergencyActivityVisible;
     private static boolean isEmergencyActivityResumed;
     private final String BACKEND_URI = "http://10.0.2.2:3000/";
+    private final String REAL_URI = "http://192.168.1.16:3000";
     private Retrofit retrofit;
     private MqttService mqttService;
+    private LocationService locationService;
 
     // For testing
     public static final boolean isVictim = true;
@@ -42,6 +54,7 @@ public class MainApplication extends Application implements Application.Activity
                 .baseUrl(BACKEND_URI)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+        createNotificationChannel();
         createButtonTriggerService();
         createLocationService();
     }
@@ -85,7 +98,35 @@ public class MainApplication extends Application implements Application.Activity
     }
 
     private void createLocationService() {
+        bindService(new Intent(this, LocationService.class), new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                locationService = ((LocationService.LocalBinder) service).getService();
+                locationService.requestLocationUpdates();
+            }
 
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                locationService.removeLocationUpdates();
+                locationService = null;
+            }
+        }, BIND_AUTO_CREATE);
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Log.d("MainApplication", "Creating Notification Channel");
+            String channelId = "emergency-support-location";
+            CharSequence name = "Emergency Support Channel";
+            String description = "No Description";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+            channel.setDescription(description);
+            channel.setLightColor(Color.BLUE);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     @Override

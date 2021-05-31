@@ -1,5 +1,6 @@
-package hcmut.team15.emergencysupport;
+package hcmut.team15.emergencysupport.location;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
@@ -11,6 +12,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import hcmut.team15.emergencysupport.MainApplication;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -41,6 +44,7 @@ public class LocationService extends Service {
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
+    private LocationRequest fastLocationRequest;
     private LocationRequestInterface locationRequestInterface;
     private Location lastLocation;
     private boolean isRequestingLocationUpdates;
@@ -59,22 +63,44 @@ public class LocationService extends Service {
         locationRequest = LocationRequest
                 .create()
                 .setInterval(15000)
-                .setFastestInterval(10000)
+                .setFastestInterval(5000)
+                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        fastLocationRequest = LocationRequest
+                .create()
+                .setInterval(5000)
+                .setFastestInterval(2000)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         updateLastLocation();
         locationRequestInterface = MainApplication.getInstance().getRetrofit().create(LocationRequestInterface.class);
+        Log.d("LocationService", "Location Service Created");
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        stopForeground(true);
+        Notification notification = new NotificationCompat.Builder(this, "emergency-support-location")
+                .setOngoing(true)
+                .setContentTitle("Emergency Support")
+                .setContentText("Ứng dụng đang chạy ngầm")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build();
+
+        startForeground(1, notification);
         return serviceBinder;
     }
 
     @Override
     public void onRebind(Intent intent) {
-        stopForeground(true);
+        Notification notification = new NotificationCompat.Builder(this, "emergency-support-location")
+                .setOngoing(true)
+                .setContentTitle("Emergency Support")
+                .setContentText("Ứng dụng đang chạy ngầm")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build();
+
+        startForeground(1, notification);
         super.onRebind(intent);
     }
 
@@ -83,6 +109,7 @@ public class LocationService extends Service {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && isRequestingLocationUpdates) {
             //startForeground(NOTIFICATION_ID, notification);
         }
+        stopForeground(true);
         return true;
     }
 
@@ -101,6 +128,7 @@ public class LocationService extends Service {
         startService(new Intent(MainApplication.getInstance(), getClass()));
         try {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+            isRequestingLocationUpdates = true;
         } catch (SecurityException ex) {
             Log.e("LocationService", "Location Permission may have not been granted");
         }
@@ -109,10 +137,19 @@ public class LocationService extends Service {
     public void removeLocationUpdates() {
         try {
             fusedLocationClient.removeLocationUpdates(locationCallback);
+            isRequestingLocationUpdates = false;
             stopSelf();
         } catch (SecurityException ex) {
             Log.e("LocationService", "Location Permission may have not been granted");
         }
+    }
+
+    public Location getLastLocation() {
+        return lastLocation;
+    }
+
+    public boolean isRequestingLocationUpdates() {
+        return isRequestingLocationUpdates;
     }
 
     private void onLocationReceived(Location location) {
