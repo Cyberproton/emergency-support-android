@@ -8,9 +8,9 @@ import org.eclipse.paho.client.mqttv3.*
 
 class MqttService(context: Context, val subscriptionTopic: String) {
     val serverUri = "tcp://io.adafruit.com:1883"
-    val username = "cyberproton"
-    val password = context.getString(R.string.adafruit_test_password)
-    val clientId = MqttClient.generateClientId()
+    val username = "CSE_BBC"
+    val password = context.getString(R.string.adafruit_bbc_password)
+    val clientId = "9999"
     val mqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
 
     init {
@@ -96,6 +96,7 @@ class MqttService(context: Context, val subscriptionTopic: String) {
         val b = data.toByteArray()
         message.payload = b
         try {
+            Log.d("MqttService", "Publishing data=$data to topic=$topic")
             mqttAndroidClient.publish(topic, message)
         } catch (ex: MqttException) {
             Log.d("MqttService", "Could not publish data to topic=$topic, data=$data")
