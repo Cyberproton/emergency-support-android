@@ -140,6 +140,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="316dp"
         android:layout_height="54dp"
         android:orientation="horizontal"
@@ -168,5 +169,7 @@
             android:layout_height="wrap_content"
             android:text="@string/google_btn" />
     </LinearLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

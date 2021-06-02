@@ -11,12 +11,20 @@ import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
+import hcmut.team15.emergencysupport.register.RegisterInterface
+import hcmut.team15.emergencysupport.register.RegisterResponse
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
     // Access from emulator
     private var locationService: LocationService? = null
+    private var registerInterface: RegisterInterface = MainApplication.getInstance().retrofit.create(RegisterInterface::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,18 +32,23 @@ class MainActivity : AppCompatActivity() {
 
         val loginButton = findViewById<Button>(R.id.login_button)
         loginButton.setOnClickListener {
-            FirebaseMessaging.getInstance().token.addOnCompleteListener( OnCompleteListener { task ->
-                if (!task.isSuccessful) {
-                    Log.w("messaging-service", "Fetching FCM registration token failed", task.exception)
-                    return@OnCompleteListener
+            val body = hashMapOf<String, String>()
+            body["username"] = "test"
+            body["password"] = "test"
+            registerInterface.register(body).enqueue(object: Callback<RegisterResponse> {
+                override fun onResponse(
+                    call: Call<RegisterResponse>,
+                    response: Response<RegisterResponse>
+                ) {
+                    var response = response.body()!!
+                    Log.d("MainActivity", response.message)
+                    response.user
                 }
 
-                // Get new FCM registration token
-                val token = task.result
+                override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
 
-                // Log and toast
-                Log.d("messaging-service", "token=$token")
-                Toast.makeText(baseContext, "token=$token", Toast.LENGTH_SHORT).show()
+                }
+
             })
         }
 
@@ -50,22 +63,37 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        Log.d("MainActivity", "Start")
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                bindService(Intent(this, LocationService::class.java), object : ServiceConnection {
-                    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                        locationService = (service as? LocationService.LocalBinder)?.service
-                        locationService?.requestLocationUpdates()
-                    }
-
-                    override fun onServiceDisconnected(name: ComponentName?) {
-                        locationService?.removeLocationUpdates()
-                        locationService = null
-                    }
-                }, BIND_AUTO_CREATE)
+            if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                Log.d("MainActivity", "Bind Location Service")
+                handleLocationService()
             } else {
-                requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), -1)
+                Log.d("MainActivity", "Request permission for Location Service")
+                requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 1)
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                Log.d("MainActivity", "Bind Location Service")
+                //handleLocationService()
+            } else {
+                Log.d("MainActivity", "Request permission for Location Service")
+                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 1)
             }
         }
+    }
+
+    private fun handleLocationService() {
+        bindService(Intent(this, LocationService::class.java), object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                locationService = (service as? LocationService.LocalBinder)?.service
+                locationService?.requestLocationUpdates()
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {
+                locationService?.removeLocationUpdates()
+                locationService = null
+            }
+        }, BIND_AUTO_CREATE)
     }
 }
