@@ -5,14 +5,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import hcmut.team15.emergencysupport.MainApplication;
+import hcmut.team15.emergencysupport.MenuActivity;
 import hcmut.team15.emergencysupport.R;
 import hcmut.team15.emergencysupport.model.Case;
 import retrofit2.Call;
@@ -22,13 +25,31 @@ import retrofit2.Response;
 public class EmergencyActivity extends AppCompatActivity {
     private HelpRequestInterface helpRequestInterface;
     private String currentCase = "";
+    private Button btn_menu, btn_emergency;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_emergency);
         helpRequestInterface = MainApplication.getInstance().getRetrofit().create(HelpRequestInterface.class);
+
+        btn_menu = findViewById(R.id.btn_menu);
+        btn_emergency = findViewById(R.id.btn_emergency);
+        btn_menu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent menu_intent = new Intent(EmergencyActivity.this, MenuActivity.class);
+                startActivity(menu_intent);
+            }
+        });
     }
+
+    public void sendSOS(View view) {
+        Intent menu_intent = new Intent(EmergencyActivity.this, CoundownActivity.class);
+        startActivity(menu_intent);
+    }
+
+    /*
 
     @Override
     protected void onStart() {
@@ -114,6 +135,7 @@ public class EmergencyActivity extends AppCompatActivity {
        fragmentTransaction.replace(R.id.framecontent, fragment);
        fragmentTransaction.commit();
     }
+    */
 }
 
 
