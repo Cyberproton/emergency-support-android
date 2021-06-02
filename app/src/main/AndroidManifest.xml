@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="hcmut.team15.emergencysupport" >
+    package="hcmut.team15.emergencysupport">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -21,11 +21,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.EmergencySupport"
-        android:usesCleartextTraffic="true" >
-        <activity android:name=".RegisterActivity1" >
-        </activity>
-        <activity android:name=".EmergencyActivity" />
-        <activity android:name=".MainActivity" >
+        android:usesCleartextTraffic="true">
+        <activity android:name=".emergency.NotifyFromVolunteerActivity"></activity>
+        <activity android:name=".emergency.CoundownActivity" />
+        <activity android:name=".MenuActivity" />
+        <activity android:name=".register.RegisterActivity1" />
+        <activity android:name=".emergency.EmergencyActivity" />
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,11 +38,16 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".login.LoginActivity" />
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
-        <service android:name=".LocationService" android:foregroundServiceType="location"/>
-        <service android:name=".MessagingService" android:exported="false">
+        <service
+            android:name=".location.LocationService"
+            android:foregroundServiceType="location" />
+        <service
+            android:name=".messaging.MessagingService"
+            android:enabled="true"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

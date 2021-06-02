@@ -1,15 +1,14 @@
-package hcmut.team15.emergencysupport;
+package hcmut.team15.emergencysupport.login;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.content.Intent;
-import org.w3c.dom.Text;
+
+import hcmut.team15.emergencysupport.R;
+import hcmut.team15.emergencysupport.register.RegisterActivity1;
 
 public class LoginActivity extends AppCompatActivity {
     TextView t1;

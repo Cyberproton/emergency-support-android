@@ -2,20 +2,35 @@
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.util.JsonReader;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import hcmut.team15.emergencysupport.emergency.EmergencyService;
+import hcmut.team15.emergencysupport.hardware.MqttService;
+import hcmut.team15.emergencysupport.emergency.EmergencyActivity;
+import hcmut.team15.emergencysupport.location.LocationService;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -24,8 +39,11 @@ public class MainApplication extends Application implements Application.Activity
     private static boolean isEmergencyActivityVisible;
     private static boolean isEmergencyActivityResumed;
     private final String BACKEND_URI = "http://10.0.2.2:3000/";
+    private final String REAL_URI = "http://192.168.1.16:3000";
     private Retrofit retrofit;
     private MqttService mqttService;
+    private LocationService locationService;
+    private EmergencyService emergencyService;
 
     // For testing
     public static final boolean isVictim = true;
@@ -42,12 +60,13 @@ public class MainApplication extends Application implements Application.Activity
                 .baseUrl(BACKEND_URI)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+        createNotificationChannel();
         createButtonTriggerService();
         createLocationService();
     }
 
     private void createButtonTriggerService() {
-        mqttService = new MqttService(this, "cyberproton/feeds/button");
+        mqttService = new MqttService(this, "CSE_BBC/feeds/bk-iot-soil");
         mqttService.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
@@ -62,19 +81,26 @@ public class MainApplication extends Application implements Application.Activity
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 String m = message.toString();
+                Log.d("MqttService", "Receive message from topic=" + topic + " and message=" + message.toString());
+                JsonObject json = new JsonParser().parse(m).getAsJsonObject();
+                Log.d("MqttService", json.get("id").getAsString());
+                Log.d("MqttService", json.get("name").getAsString());
+                Log.d("MqttService", json.get("data").getAsString());
+                Log.d("MqttService", json.get("unit").getAsString());
                 if (m.equals("1")) {
                     Toast.makeText(
                             getBaseContext(),
                             "Message from Adafruit: topic=" + topic + ", message=" + message.toString() + ", Button pressed",
                             Toast.LENGTH_LONG
                     ).show();
-
+                    /*
                     if (!isEmergencyActivityVisible && !isEmergencyActivityResumed) {
                         Intent intent = new Intent(getBaseContext(), EmergencyActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.putExtra("startSignal", true);
                         startActivity(intent);
                     }
+                     */
                 }
             }
 
@@ -85,7 +111,75 @@ public class MainApplication extends Application implements Application.Activity
     }
 
     private void createLocationService() {
+        bindService(new Intent(this, LocationService.class), new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                locationService = ((LocationService.LocalBinder) service).getService();
+                locationService.requestLocationUpdates();
+            }
 
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                locationService.removeLocationUpdates();
+                locationService = null;
+            }
+        }, BIND_AUTO_CREATE);
+
+        bindService(new Intent(this, EmergencyService.class), new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                emergencyService = ((EmergencyService.LocalBinder) service).getService();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                emergencyService = null;
+            }
+        }, BIND_AUTO_CREATE);
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Log.d("MainApplication", "Creating Location Notification Channel");
+            String channelId = "emergency-support-location";
+            CharSequence name = "Dịch vụ vị trí";
+            String description = "Ứng dụng gửi vị trí của bạn lên máy chủ";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+            channel.setDescription(description);
+            channel.setLightColor(Color.BLUE);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Log.d("MainApplication", "Creating Emergency Notification Channel");
+            String channelId = "emergency-support-emergency";
+            CharSequence name = "Dịch vụ khẩn cấp";
+            String description = "Ứng dụng chạy chức năng phát tín hiệu khẩn cấp khi bạn tắt ứng dụng";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+            channel.setDescription(description);
+            channel.setLightColor(Color.BLUE);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Log.d("MainApplication", "Creating Notification Channel");
+            String channelId = "emergency-support-victim-call";
+            CharSequence name = "Có người cần trợ giúp gần bạn";
+            String description = "Vui lòng hỗ trợ nếu bạn có thể";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+            channel.setDescription(description);
+            channel.setLightColor(Color.BLUE);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     @Override
@@ -144,5 +238,9 @@ public class MainApplication extends Application implements Application.Activity
 
     public Retrofit getRetrofit() {
         return retrofit;
+    }
+
+    public LocationService getLocationService() {
+        return locationService;
     }
 }

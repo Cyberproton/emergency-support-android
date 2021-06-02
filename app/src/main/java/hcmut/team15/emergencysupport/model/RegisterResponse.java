@@ -1,6 +1,4 @@
-package hcmut.team15.emergencysupport.register;
-
-import hcmut.team15.emergencysupport.User;
+package hcmut.team15.emergencysupport.model;
 
 public class RegisterResponse {
     private String message;
