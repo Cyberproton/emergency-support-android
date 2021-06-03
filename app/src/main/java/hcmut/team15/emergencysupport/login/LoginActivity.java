@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.content.Intent;
+import android.widget.Button;
 
+import hcmut.team15.emergencysupport.MainActivity;
 import hcmut.team15.emergencysupport.R;
 import hcmut.team15.emergencysupport.register.RegisterActivity1;
 

@@ -11,7 +11,7 @@
     <string name="login_account">Login</string>
     <string name="name"><font size="15px"> Name:</font></string>
     <string name="birth_day"> Birth Day:</string>
-    <string name="blood_type"> Blood Type:</string>
+    <string name="phone_num"> Phone Number:</string>
     <string name="content_description_arrow_back_image">Back Arrow</string>
     <string name="register_create">Create</string>
     <string name="create_account_via_social_media">Create account using social media</string>
