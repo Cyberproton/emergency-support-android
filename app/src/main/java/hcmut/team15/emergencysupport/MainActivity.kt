@@ -16,10 +16,12 @@ import com.google.gson.JsonObject
 import hcmut.team15.emergencysupport.emergency.EmergencyActivity
 import hcmut.team15.emergencysupport.emergency.HelpRequestInterface
 import hcmut.team15.emergencysupport.location.LocationService
+import hcmut.team15.emergencysupport.login.LoginActivity
 import hcmut.team15.emergencysupport.model.Case
 import hcmut.team15.emergencysupport.model.HelpResponse
 import hcmut.team15.emergencysupport.register.RegisterInterface
 import hcmut.team15.emergencysupport.model.RegisterResponse
+import hcmut.team15.emergencysupport.login.TokenVar
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -30,7 +32,6 @@ class MainActivity : AppCompatActivity() {
     private var registerInterface: RegisterInterface = MainApplication.getInstance().retrofit.create(RegisterInterface::class.java)
     private var helpInterface = MainApplication.getInstance().retrofit.create(HelpRequestInterface::class.java)
     private var ledColor = 1
-
     private var case: Case? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
             Log.d("MainActivity", "Sending $data")
             MainApplication.getInstance().mqttService.sendData("CSE_BBC/feeds/bk-iot-led", data.toString());
+
         }
 
         val emergencyBtn = findViewById<Button>(R.id.egcy_button)
