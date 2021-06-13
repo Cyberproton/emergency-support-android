@@ -5,15 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#C3B8B8"
-    android:padding="16dp"
-    >
+    android:padding="16dp">
 
     <ImageView
         android:id="@+id/iv_back"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:clickable="true"
         android:background="@null"
+        android:clickable="true"
         android:contentDescription="@string/content_description_arrow_back_image"
         android:src="@drawable/ic_baseline_arrow_back_24"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -40,16 +39,16 @@
         app:layout_constraintVertical_bias="0.044" />
 
     <EditText
-        android:id="@+id/editTextTextEmailAddress"
+        android:id="@+id/editTextUserName"
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:layout_margin="12dp"
         android:layout_marginTop="36dp"
         android:background="@drawable/register_edit_text_background"
         android:drawableStart="@drawable/ic_baseline_person_24"
-        android:drawableLeft="@drawable/ic_baseline_person_24"
         android:ems="10"
-        android:hint="@string/email_txt"
+        android:hint="Username"
+        tools:ignore="HardcodedText"
         android:importantForAutofill="no"
         android:padding="6dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -65,35 +64,59 @@
         android:layout_margin="12dp"
         android:background="@drawable/register_edit_text_background"
         android:drawableStart="@drawable/ic_baseline_lock_24"
-        android:drawableLeft="@drawable/ic_baseline_lock_24"
-        android:drawableEnd="@drawable/ic_baseline_remove_red_eye_24"
-        android:drawableRight="@drawable/ic_baseline_remove_red_eye_24"
         android:hint="@string/password"
         android:importantForAutofill="no"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.714"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress"
+        app:layout_constraintTop_toBottomOf="@+id/editTextUserName"
         app:layout_constraintVertical_bias="0.031" />
 
+
     <EditText
-        android:id="@+id/editTextDate"
+        android:id="@+id/editTextRepeatPassword"
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:layout_margin="12dp"
         android:background="@drawable/register_edit_text_background"
-        android:drawableStart="@drawable/ic_baseline_calendar_today_24"
-        android:drawableLeft="@drawable/ic_baseline_calendar_today_24"
-        android:hint="@string/birth_day"
+        android:drawableStart="@drawable/ic_baseline_lock_24"
+        android:hint="Repeat Password:"
         android:importantForAutofill="no"
-        android:inputType="date"
+        android:inputType="textPassword"
         android:padding="6dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword"
-        app:layout_constraintVertical_bias="0.037" />
+        app:layout_constraintVertical_bias="0.037"
+        tools:ignore="HardcodedText" />
+
+    <ImageView
+        android:id="@+id/show_pass_btn1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="ShowHidePass"
+        android:src="@drawable/ic_baseline_remove_red_eye_24"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextTextPassword"
+        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
+        app:layout_constraintHorizontal_bias="0.933"
+        app:layout_constraintStart_toStartOf="@+id/editTextTextPassword"
+        app:layout_constraintTop_toTopOf="@+id/editTextTextPassword"
+        app:layout_constraintVertical_bias="0.545" />
+
+    <ImageView
+        android:id="@+id/show_pass_btn2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="ShowHidePass"
+        android:src="@drawable/ic_baseline_remove_red_eye_24"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextRepeatPassword"
+        app:layout_constraintEnd_toEndOf="@+id/editTextRepeatPassword"
+        app:layout_constraintHorizontal_bias="0.939"
+        app:layout_constraintStart_toStartOf="@+id/editTextRepeatPassword"
+        app:layout_constraintTop_toTopOf="@+id/editTextRepeatPassword"
+        app:layout_constraintVertical_bias="0.545" />
 
     <EditText
         android:id="@+id/editText"
@@ -101,9 +124,9 @@
         android:layout_height="46dp"
         android:layout_margin="12dp"
         android:background="@drawable/register_edit_text_background"
-        android:drawableStart="@drawable/ic_baseline_favorite_24"
-        android:drawableLeft="@drawable/ic_baseline_favorite_24"
-        android:hint="@string/blood_type"
+        android:drawableStart="@drawable/ic_baseline_phone_24"
+        android:drawableLeft="@drawable/ic_baseline_phone_24"
+        android:hint="@string/phone_num"
         android:importantForAutofill="no"
         android:inputType="text"
         android:padding="6dp"
@@ -111,7 +134,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.714"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextDate"
+        app:layout_constraintTop_toBottomOf="@+id/editTextRepeatPassword"
         app:layout_constraintVertical_bias="0.036" />
 
     <Button
@@ -140,6 +163,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="316dp"
         android:layout_height="54dp"
         android:orientation="horizontal"
@@ -168,5 +192,6 @@
             android:layout_height="wrap_content"
             android:text="@string/google_btn" />
     </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

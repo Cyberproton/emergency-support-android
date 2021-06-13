@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import hcmut.team15.emergencysupport.MainApplication;
+import hcmut.team15.emergencysupport.R;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -78,28 +79,14 @@ public class LocationService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Notification notification = new NotificationCompat.Builder(this, "emergency-support-location")
-                .setOngoing(true)
-                .setContentTitle("Emergency Support")
-                .setContentText("Ứng dụng đang chạy ngầm")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .build();
-
+        Notification notification = getNotification();
         startForeground(1, notification);
         return serviceBinder;
     }
 
     @Override
     public void onRebind(Intent intent) {
-        Notification notification = new NotificationCompat.Builder(this, "emergency-support-location")
-                .setOngoing(true)
-                .setContentTitle("Emergency Support")
-                .setContentText("Ứng dụng đang chạy ngầm")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .build();
-
+        Notification notification = getNotification();
         startForeground(1, notification);
         super.onRebind(intent);
     }
@@ -150,6 +137,17 @@ public class LocationService extends Service {
 
     public boolean isRequestingLocationUpdates() {
         return isRequestingLocationUpdates;
+    }
+
+    public Notification getNotification() {
+        return new NotificationCompat.Builder(this, "emergency-support-location")
+                .setOngoing(true)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Dịch vụ vị trí đang chạy")
+                .setContentText("Ứng dụng đang lưu trữ vị trí của bạn")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build();
     }
 
     private void onLocationReceived(Location location) {

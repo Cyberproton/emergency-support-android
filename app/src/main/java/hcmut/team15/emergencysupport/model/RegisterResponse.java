@@ -1,7 +1,5 @@
 package hcmut.team15.emergencysupport.model;
 
-import hcmut.team15.emergencysupport.model.User;
-
 public class RegisterResponse {
     private String message;
     private String error;
