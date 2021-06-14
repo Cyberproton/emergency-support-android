@@ -19,4 +19,17 @@
     <string name="fb_btn">Facebook</string>
     <string name="tw_btn">Twitter</string>
     <string name="google_btn">Google</string>
+    <string name="victim_calls_label">NGƯỜI CẦN TRỢ GIÚP</string>
+    <string name="volunteer_victim_distance_label">Khoảng cách đến bạn</string>
+    <string name="volunteer_victim_distance_content">Không rõ khoảng cách</string>
+    <string name="volunteer_victim_name_label">Tên</string>
+    <string name="volunteer_victim_name_content">Không rõ tên</string>
+    <string name="volunteer_victim_dateofbirth_label">Ngày sinh</string>
+    <string name="volunteer_victim_dateofbirth_content">Không rõ ngày sinh</string>
+    <string name="volunteer_victim_bloodtype_label">Nhóm máu</string>
+    <string name="volunteer_victim_bloodtype_content">Không rõ nhóm máu</string>
+    <string name="volunteer_victim_anamnesis_label">Tiền sử bệnh</string>
+    <string name="volunteer_victim_anamnesis_content">Không rõ</string>
+    <string name="volunteer_victim_allergens_label">Dị ứng</string>
+    <string name="volunteer_victim_allergens_content">Không rõ</string>
 </resources>
