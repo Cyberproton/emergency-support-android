@@ -16,6 +16,8 @@ import hcmut.team15.emergencysupport.R;
 public class CoundownActivity extends AppCompatActivity {
     TextView timer;
     Button btn_cancel;
+    private CountDownTimer countDownTimer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +30,7 @@ public class CoundownActivity extends AppCompatActivity {
     }
 
     private void startTimer() {
-        new CountDownTimer(5000, 1000){
+        countDownTimer = new CountDownTimer(5000, 1000){
 
             @Override
             public void onTick(long millisUntilFinished) {
@@ -46,6 +48,7 @@ public class CoundownActivity extends AppCompatActivity {
 
 
     public void turnback(View view) {
+        countDownTimer.cancel();
         Intent menu_intent = new Intent(CoundownActivity.this, EmergencyActivity.class);
         startActivity(menu_intent);
     }

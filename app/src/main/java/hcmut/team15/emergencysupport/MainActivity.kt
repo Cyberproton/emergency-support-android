@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.gson.JsonObject
+import hcmut.team15.emergencysupport.contact.ContactActivity
 import hcmut.team15.emergencysupport.emergency.EmergencyActivity
 import hcmut.team15.emergencysupport.emergency.HelpRequestInterface
 import hcmut.team15.emergencysupport.location.LocationService
@@ -21,6 +22,7 @@ import hcmut.team15.emergencysupport.model.Case
 import hcmut.team15.emergencysupport.model.HelpResponse
 import hcmut.team15.emergencysupport.register.RegisterInterface
 import hcmut.team15.emergencysupport.model.RegisterResponse
+import hcmut.team15.emergencysupport.model.User
 import hcmut.team15.emergencysupport.login.TokenVar
 import retrofit2.Call
 import retrofit2.Callback
@@ -32,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private var registerInterface: RegisterInterface = MainApplication.getInstance().retrofit.create(RegisterInterface::class.java)
     private var helpInterface = MainApplication.getInstance().retrofit.create(HelpRequestInterface::class.java)
     private var ledColor = 1
+
     private var case: Case? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +59,28 @@ class MainActivity : AppCompatActivity() {
         val emergencyBtn = findViewById<Button>(R.id.egcy_button)
         emergencyBtn.setOnClickListener { view->
             val intent: Intent = Intent(this, EmergencyActivity::class.java);
+            startActivity(intent)
+        }
+
+        findViewById<Button>(R.id.asVictimBtn).setOnClickListener {
+            MainApplication.VICTIM_ACCESS = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoidmljdGltIiwiaWF0IjoxNjIxNTg4MDk1LCJleHAiOjE2NTMxMjQwOTV9.cVbIAbUEjaxCF_dRTEJCLKQBt4PXk8UNGZEvISVnW3Q";
+            MainApplication.you = User(MainApplication.VICTIM_USERNAME, "", null)
+        }
+
+        findViewById<Button>(R.id.asVolunteerBtn).setOnClickListener {
+            MainApplication.VICTIM_ACCESS = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoidm9sdW50ZWVyIiwiaWF0IjoxNjIxNTg4MDE2LCJleHAiOjE2NTMxMjQwMTZ9.UeeHdK07SWhVXb4oiND_kSCdiff-ZRFcb6RZXElIt5Q";
+            MainApplication.you = User(MainApplication.VOLUNTEER_USERNAME, "", null)
+        }
+
+        findViewById<Button>(R.id.asRealDevice).setOnClickListener {
+            MainApplication.BACKEND_URI = MainApplication.REAL_URI;
+            MainApplication.getInstance().emergencyService.createSocket(MainApplication.BACKEND_URI);
+            MainApplication.getInstance().createRetrofit(MainApplication.BACKEND_URI)
+            MainApplication.getInstance().locationService.createLocationRequestInterface();
+        }
+
+        findViewById<Button>(R.id.contactBtn).setOnClickListener {
+            val intent = Intent(this, ContactActivity::class.java)
             startActivity(intent)
         }
     }
