@@ -76,6 +76,10 @@ public class LocationService extends Service {
         Log.d("LocationService", "Location Service Created");
     }
 
+    public void createLocationRequestInterface() {
+        locationRequestInterface = MainApplication.getInstance().getRetrofit().create(LocationRequestInterface.class);
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -152,6 +156,7 @@ public class LocationService extends Service {
 
     private void onLocationReceived(Location location) {
         Log.d("LocationService", "Location received: " + location.toString());
+        MainApplication.you.setCurrentLocation(new hcmut.team15.emergencysupport.model.Location(location));
         Map<String, String> body = new HashMap<>();
         body.put("longitude", String.valueOf(location.getLongitude()));
         body.put("latitude", String.valueOf(location.getLatitude()));
