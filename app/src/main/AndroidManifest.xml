@@ -27,9 +27,13 @@
         <activity android:name=".MenuActivity" />
         <activity android:name=".register.RegisterActivity1" />
         <activity android:name=".emergency.EmergencyActivity" />
+        <activity android:name=".emergency.EmergencyCaseActivity" />
         <activity android:name=".call.CallActivity" />
         <activity android:name=".emergency.VolunteerActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".contact.ContactActivity"/>
+        <activity android:name=".MainActivity"/>
+        <activity android:name=".login.ForgotPasswordActivity"/>
+        <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,9 +44,6 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-        <activity android:name=".login.LoginActivity" />
-        <activity android:name=".emergency.EmergencyCaseActivity" />
-        <activity android:name=".contact.ContactActivity"/>
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
         <service

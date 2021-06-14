@@ -15,7 +15,7 @@
     <string name="content_description_arrow_back_image">Back Arrow</string>
     <string name="register_create">Create</string>
     <string name="create_account_via_social_media">Create account using social media</string>
-    <string name="register_notice">Dont have an account?</string>
+    <string name="register_notice">"Don\'t have an account?"</string>
     <string name="fb_btn">Facebook</string>
     <string name="tw_btn">Twitter</string>
     <string name="google_btn">Google</string>
