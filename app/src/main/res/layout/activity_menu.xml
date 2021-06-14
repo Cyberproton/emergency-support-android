@@ -8,72 +8,111 @@
     tools:context=".MenuActivity">
 
 
+    <TextView
+        android:id="@+id/menu_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:text="EMERGENCY"
+        android:textColor="@color/black"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/menu_title2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:text="SUPPORT"
+        android:textColor="@color/black"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <Button
-        android:id="@+id/button"
+        android:id="@+id/menu_emergency_start_btn"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_margin="20dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="200dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/custom_function_button"
+        android:drawableTop="@drawable/ic_baseline_settings_input_antenna_24"
+        android:text="PHÁT TÍN HIỆU KHẨN CẤP"
+        android:textColor="@color/black"
+        android:textSize="12dp"
+        app:backgroundTint="@null"
+        app:layout_constraintEnd_toStartOf="@+id/menu_victim_calls_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/menu_victim_calls_btn"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="200dp"
+        android:layout_marginEnd="32dp"
         android:background="@drawable/custom_function_button"
         android:drawableTop="@drawable/ic_baseline_warning_24"
         android:text="NGƯỜI CẦN TRỢ GIÚP"
+        android:textColor="@color/black"
         android:textSize="12dp"
         app:backgroundTint="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.068"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.113" />
+        app:layout_constraintStart_toEndOf="@+id/menu_emergency_start_btn"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/menu_contacts_btn"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_margin="20dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="350dp"
+        android:layout_marginEnd="32dp"
         android:background="@drawable/custom_function_button"
         android:drawableTop="@drawable/ic_baseline_contact_phone_24"
         android:text="QUAY SỐ NHANH"
+        android:textColor="@color/black"
         android:textSize="12dp"
         app:backgroundTint="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.835"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.115" />
+        app:layout_constraintStart_toEndOf="@+id/menu_user_info_btn"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/menu_user_info_btn"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_margin="20dp"
-        android:background="@drawable/custom_function_button"
-        android:drawableTop="@drawable/ic_baseline_login_24"
-        android:text="ĐĂNG XUẤT"
-        android:textSize="12dp"
-        app:backgroundTint="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.457"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.853" />
-
-    <Button
-        android:id="@+id/button4"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_margin="20dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="350dp"
+        android:layout_marginEnd="16dp"
         android:background="@drawable/custom_function_button"
         android:drawableTop="@drawable/ic_sharp_edit"
         android:text="THÔNG TIN NGƯỜI DÙNG"
+        android:textColor="@color/black"
         android:textSize="12dp"
         app:backgroundTint="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.463"
+        app:layout_constraintEnd_toStartOf="@+id/menu_contacts_btn"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.498" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/menu_logout_btn"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="500dp"
+        android:background="@drawable/custom_function_button"
+        android:drawableTop="@drawable/ic_baseline_login_24"
+        android:text="ĐĂNG XUẤT"
+        android:textColor="@color/black"
+        android:textSize="12dp"
+        app:backgroundTint="@null"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
