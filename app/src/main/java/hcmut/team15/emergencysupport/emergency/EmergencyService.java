@@ -1,7 +1,6 @@
 package hcmut.team15.emergencysupport.emergency;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -16,17 +15,21 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.google.gson.Gson;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import hcmut.team15.emergencysupport.MainApplication;
+import hcmut.team15.emergencysupport.MenuActivity;
 import hcmut.team15.emergencysupport.R;
+import hcmut.team15.emergencysupport.call.CallActivity;
 import hcmut.team15.emergencysupport.model.Case;
+import hcmut.team15.emergencysupport.model.Location;
 import hcmut.team15.emergencysupport.model.User;
 import io.socket.client.IO;
 import io.socket.client.Manager;
@@ -42,64 +45,159 @@ public class EmergencyService extends Service {
     }
 
     private final Emitter.Listener onVolunteerAccept = args -> {
-        JSONObject body = (JSONObject) args[0];
-        Log.d("EmergencyService", body.toString());
+        Log.d(this.getClass().getSimpleName(), "Volunteer accepted");
+        try {
+            if (!this.asVictim || this.callingCase == null) {
+                return;
+            }
+
+            JSONObject body = null;
+            User volunteer = null;
+            body = (JSONObject) args[0];
+            JSONObject jsonCase = (JSONObject) args[1];
+            Gson gson = new Gson();
+            volunteer = gson.fromJson(body.toString(), User.class);
+            Case cs = gson.fromJson(jsonCase.toString(), Case.class);
+            handleCaseUpdate(cs);
+
+            float dist = Location.distanceBetween(cs.getCaller().getCurrentLocation(), volunteer.getCurrentLocation());
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            notificationManager.notify(volunteerAcceptNotificationId, getVolunteerAcceptNotification(volunteer.getUsername(), dist));
+            volunteerAcceptNotificationId++;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    };
+
+    private final Emitter.Listener onVolunteerStop = args -> {
+        Log.d(this.getClass().getSimpleName(), "Volunteer stop");
+        if (this.asVictim && this.callingCase != null) {
+            try {
+                JSONObject jsonCase = (JSONObject) args[1];
+                Case cs = new Gson().fromJson(jsonCase.toString(), Case.class);
+                handleCaseUpdate(cs);
+                if (this.notifyFromVolunteerActivity != null) {
+                    this.notifyFromVolunteerActivity.onCaseClosed();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    };
+
+    private final Emitter.Listener onVolunteerUpdate = args -> {
+        Log.d(this.getClass().getSimpleName(), "Volunteer Update");
+        try {
+            JSONObject jsonCase = (JSONObject) args[0];
+            Gson gson = new Gson();
+            Case cs = gson.fromJson(jsonCase.toString(), Case.class);
+            handleCaseUpdate(cs);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     };
 
     private final Emitter.Listener onCaseCreated = args -> {
-        JSONObject cs = (JSONObject) args[0];
+        Log.d(getClass().getSimpleName(), "Case Created");
         try {
-            Log.d("EmergencyService", "Case id=" + cs.getString("_id"));
+            JSONObject cs = (JSONObject) args[0];
             Gson gson = new Gson();
-            //this.cs = gson.fromJson(cs.toString(), Case.class);
-            Log.d("EmergencyService", cs.toString());
-            this.cs = new Case(null, null, null, false, null);
-        } catch (Exception e) {
-            e.printStackTrace();
+            this.callingCase = gson.fromJson(cs.toString(), Case.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    };
+
+    private final Emitter.Listener onCaseClosed = args -> {
+        Log.d(getClass().getSimpleName(), "Case Closed");
+        try {
+            JSONObject jsonCase = (JSONObject) args[0];
+            Gson gson = new Gson();
+            Case cs = gson.fromJson(jsonCase.toString(), Case.class);
+            if (this.asVolunteer && this.acceptedCase != null && this.acceptedCase.getId().equals(cs.getId())) {
+                this.acceptedCase = null;
+            }
+            this.cases.remove(cs.getId());
+            handleCaseUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     };
 
     private final Emitter.Listener onVictimCall = args -> {
-        //if (EmergencyService.this.asVictim) {
-        //    return;
-        //}
-        JSONObject victim = (JSONObject) args[0];
         try {
-            Log.d("EmergencyService", "Victim id=" + victim.getString("_id"));
-            Gson gson = new Gson();
-            this.cs = gson.fromJson(victim.toString(), Case.class);
-        } catch (Exception e) {
-            e.printStackTrace();
+            Log.d(this.getClass().getSimpleName(), "Victim call");
+
+            JSONObject victim = (JSONObject) args[0];
+            JSONObject jsonCase = (JSONObject) args[1];
+            JSONObject jsonYou = (JSONObject) args[2];
+
+            User you = new Gson().fromJson(jsonYou.toString(), User.class);
+            Case cs = new Gson().fromJson(jsonCase.toString(), Case.class);
+
+            boolean shouldNotify = !this.cases.containsKey(cs.getId());
+            handleCaseUpdate(cs);
+
+            Log.d(getClass().getSimpleName(), "Should notify: " + shouldNotify);
+
+            if (this.asVictim || this.asVolunteer) {
+                return;
+            }
+
+            Log.d(getClass().getSimpleName(), "Check notify: " + shouldNotify);
+
+            if (shouldNotify) {
+                float dist = Location.distanceBetween(cs.getCaller().getCurrentLocation(), you.getCurrentLocation());
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                notificationManager.notify(victimCallNotificationId, getVictimCallNotification(dist, cs));
+                victimCallNotificationId++;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(100, getVictimCallNotification());
     };
 
     private final LocalBinder serviceBinder = new LocalBinder();
-    private List<User> volunteers;
     private User you;
-    private User victim;
-    private Case cs;
+    private final Map<String, Case> cases = new HashMap<>();
 
     private Socket socket;
     private boolean isEmergencyStart;
-    private boolean asVictim;
-    private boolean asVolunteer;
+
+    private Case acceptedCase;
+    private boolean asVolunteer = false;
+
+    private Case callingCase;
+    private boolean asVictim = false;
+
+    private static int victimCallNotificationId = 1000;
+    private static int volunteerAcceptNotificationId = 2000;
+    private NotifyFromVolunteerActivity notifyFromVolunteerActivity;
+    private EmergencyCaseActivity emergencyCaseActivity;
+    private CallActivity callActivity;
+    private VolunteerActivity volunteerActivity;
 
     @Override
     public void onCreate() {
         Log.d("EmergencyService", "Service created");
         super.onCreate();
+        createSocket(getString(R.string.server_url_emulator));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForeground(2, getForegroundNotification());
+        }
+    }
+
+    public void createSocket(String serverUrl) {
         try {
-            socket = IO.socket(getString(R.string.server_url_emulator));
+            if (socket != null) {
+                socket.disconnect();
+            }
+            socket = IO.socket(serverUrl);
             handleSocket();
             socket.connect();
             Log.d("EmergencyService", "Socket IO Client connected to server with url=" + getString(R.string.server_url_emulator));
         } catch (URISyntaxException e) {
             e.printStackTrace();
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForeground(2, getForegroundNotification());
         }
     }
 
@@ -144,57 +242,147 @@ public class EmergencyService extends Service {
         return START_STICKY;
     }
 
+    public void handleCaseUpdate(Case cs) {
+        if (asVictim && callingCase.getId().equals(cs.getId())) {
+            this.callingCase = cs;
+        } else if (asVolunteer && acceptedCase.getId().equals(cs.getId())) {
+            this.acceptedCase = cs;
+        }
+        cases.put(cs.getId(), cs);
+        if (notifyFromVolunteerActivity != null) {
+            notifyFromVolunteerActivity.runOnUiThread(() -> notifyFromVolunteerActivity.updateCase(cs));
+        }
+        if (callActivity != null) {
+            callActivity.runOnUiThread(() -> callActivity.onCasesUpdate(new ArrayList<>(cases.values())));
+        }
+    }
+
+    public void handleCaseUpdate() {
+        if (callActivity != null) {
+            callActivity.runOnUiThread(() -> callActivity.onCasesUpdate(new ArrayList<>(cases.values())));
+        }
+    }
+
     public void startEmergency() {
-        if (cs != null && asVolunteer) {
-            throw new IllegalStateException("You cannot start as victim while you are volunteer");
+        if (callingCase != null || acceptedCase != null) {
+            return;
         }
         socket.emit("startEmergency");
+
         asVictim = true;
         asVolunteer = false;
+        isEmergencyStart = true;
     }
 
     public void stopEmergency() {
-        if (cs == null || asVolunteer) {
+        if (!asVictim || callingCase == null) {
             throw new IllegalStateException("Case is already closed or you are a volunteer");
         }
-        socket.emit("stopEmergency");
-        cs = null;
-        asVictim = false;
-        asVolunteer = false;
-    }
-
-    public void startVolunteer() {
-        if (cs != null && asVictim) {
-            throw new IllegalStateException("You cannot start as volunteer while you are victim");
+        try {
+            JSONObject jsonCase = new JSONObject(new Gson().toJson(callingCase, Case.class));
+            socket.emit("stopEmergency", jsonCase);
+            callingCase = null;
+            asVictim = false;
+            asVolunteer = false;
+            isEmergencyStart = false;
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        socket.emit("startVolunteer");
-        asVolunteer = true;
-        asVictim = false;
     }
 
     public void stopVolunteer() {
-        if (cs == null || asVictim) {
-            throw new IllegalStateException("Case is already closed or you are a victim");
+        if (!asVolunteer || acceptedCase == null) {
+            return;
         }
-        socket.emit("stopVolunteer");
-        asVolunteer = false;
-        asVictim = false;
+        Log.d(getClass().getSimpleName(), "Stop volunteer");
+        try {
+            JSONObject jsonCase = new JSONObject(new Gson().toJson(acceptedCase, Case.class));
+            socket.emit("stopVolunteer", jsonCase);
+            asVolunteer = false;
+            asVictim = false;
+            acceptedCase = null;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
-    public List<User> getVolunteers() {
-        return volunteers;
+    public void acceptVolunteer(String caseId) {
+        if (asVolunteer || acceptedCase != null) {
+            return;
+        }
+        Log.d(getClass().getSimpleName(), "Accept Volunteer");
+        try {
+            Case cs = getCase(caseId);
+            JSONObject jsonCase;
+            jsonCase = new JSONObject(new Gson().toJson(cs, Case.class));
+            socket.emit("acceptVolunteer", jsonCase);
+            asVolunteer = true;
+            asVictim = false;
+            acceptedCase = cs;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public User getYou() {
         return you;
     }
 
-    public Case getCase() {
-        return cs;
+    public void registerView(NotifyFromVolunteerActivity view) {
+        notifyFromVolunteerActivity = view;
     }
 
-    public void registerView() {
+    public void unregisterView(NotifyFromVolunteerActivity view) {
+        notifyFromVolunteerActivity = null;
+    }
 
+    public void registerView(EmergencyCaseActivity view) {
+        emergencyCaseActivity = view;
+    }
+
+    public void unregisterEmergencyCaseActivity() {
+        emergencyCaseActivity = null;
+    }
+
+    public void registerView(CallActivity view) {
+        callActivity = view;
+        callActivity.runOnUiThread(() -> callActivity.onCasesUpdate(new ArrayList<>(cases.values())));
+    }
+
+    public void unregisterCallActivity() {
+        callActivity = null;
+    }
+
+    public void registerView(VolunteerActivity view) {
+        volunteerActivity = view;
+    }
+
+    public void unregisterVolunteerActivity() {
+        volunteerActivity = null;
+    }
+
+    public boolean isEmergencyStart() {
+        return isEmergencyStart;
+    }
+
+    public boolean isAsVictim() {
+        return asVictim;
+    }
+
+    public boolean isAsVolunteer() {
+        return asVolunteer;
+    }
+
+    public Case getCase(String caseId) {
+        return cases.get(caseId);
+    }
+
+    public Case getAcceptedCase() {
+        return acceptedCase;
+    }
+
+    public Case getCallingCase() {
+        return callingCase;
     }
 
     private void handleSocket() {
@@ -225,8 +413,11 @@ public class EmergencyService extends Service {
             });
         });
         socket.on("caseCreated", onCaseCreated);
+        socket.on("caseClosed", onCaseClosed);
         socket.on("volunteerAccept", onVolunteerAccept);
+        socket.on("volunteerStop", onVolunteerStop);
         socket.on("victimCall", onVictimCall);
+        socket.on("volunteerUpdate", onVolunteerUpdate);
     }
 
     private Notification getForegroundNotification() {
@@ -252,11 +443,24 @@ public class EmergencyService extends Service {
                 .build();
     }
 
-    private Notification getVictimCallNotification() {
+    private Notification getVictimCallNotification(float distance, Case cs) {
+        Intent intent = new Intent(this, EmergencyCaseActivity.class);
+        intent.putExtra("caseId", cs.getId());
+        PendingIntent viewCase = PendingIntent.getActivity(this, 5, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         return new NotificationCompat.Builder(this, "emergency-support-victim-call")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Có người cần trợ giúp gần bạn")
-                .setContentText("Vui lòng hỗ trợ nếu bạn có thể")
+                .setContentText("Cách bạn " + String.format("%.1f", distance) + " m")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .addAction(R.mipmap.ic_launcher_round, "Xem thông tin", viewCase)
+                .build();
+    }
+
+    private Notification getVolunteerAcceptNotification(String name, double distance) {
+        return new NotificationCompat.Builder(this, "emergency-support-volunteer-accept")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Tình nguyện viên đang đến")
+                .setContentText(name + " đang đến. Cách bạn " + String.format("%.1f", distance) + " m")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build();
     }

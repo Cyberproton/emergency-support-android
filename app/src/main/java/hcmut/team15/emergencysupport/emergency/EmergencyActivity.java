@@ -5,8 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,16 +35,27 @@ public class EmergencyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_emergency);
         helpRequestInterface = MainApplication.getInstance().getRetrofit().create(HelpRequestInterface.class);
+        findViewById(R.id.signal_button).setOnClickListener(view -> {
 
+        });
         btn_menu = findViewById(R.id.btn_menu);
         btn_emergency = findViewById(R.id.btn_emergency);
-        btn_menu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent menu_intent = new Intent(EmergencyActivity.this, MenuActivity.class);
-                startActivity(menu_intent);
-            }
+        btn_menu.setOnClickListener(v -> {
+            Intent menu_intent = new Intent(EmergencyActivity.this, MenuActivity.class);
+            startActivity(menu_intent);
         });
+
+        bindService(new Intent(this, EmergencyService.class), new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+            }
+        }, BIND_AUTO_CREATE);
     }
 
     public void sendSOS(View view) {
