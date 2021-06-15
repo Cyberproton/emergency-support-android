@@ -12,8 +12,7 @@ import retrofit2.http.Header;
 import retrofit2.http.POST;
 
 public interface LoginInterface {
-    @POST("/api/register")
-    Call<Void> executeRegister(@Body Map<String, String> body);
+
 
     @POST("/api/login")
     Call<LoginResponse> executeLogin(@Body Map<String, String> body);
