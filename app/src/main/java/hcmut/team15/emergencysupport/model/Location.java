@@ -11,6 +11,10 @@ public class Location {
         this.altitude = altitude;
     }
 
+    public Location(android.location.Location location) {
+        this(location.getLongitude(), location.getLatitude(), location.getAltitude());
+    }
+
     public double getLongitude() {
         return longitude;
     }
@@ -33,5 +37,11 @@ public class Location {
 
     public void setAltitude(double altitude) {
         this.altitude = altitude;
+    }
+
+    public static float distanceBetween(Location l1, Location l2) {
+        float[] results = new float[2];
+        android.location.Location.distanceBetween(l1.latitude, l1.longitude, l2.latitude, l2.longitude, results);
+        return results[0];
     }
 }

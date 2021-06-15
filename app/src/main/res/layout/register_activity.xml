@@ -176,19 +176,19 @@
         app:layout_constraintVertical_bias="0.184">
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/menu_contacts_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/fb_btn" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/menu_logout_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/tw_btn" />
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/menu_user_info_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/google_btn" />
