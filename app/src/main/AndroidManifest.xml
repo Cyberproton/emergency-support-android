@@ -33,6 +33,7 @@
         <activity android:name=".contact.ContactActivity"/>
         <activity android:name=".MainActivity"/>
         <activity android:name=".login.ForgotPasswordActivity"/>
+        <activity android:name=".profile.ProfileActivity"/>
         <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

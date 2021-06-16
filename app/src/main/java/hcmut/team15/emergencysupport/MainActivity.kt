@@ -24,6 +24,7 @@ import hcmut.team15.emergencysupport.register.RegisterInterface
 import hcmut.team15.emergencysupport.model.RegisterResponse
 import hcmut.team15.emergencysupport.model.User
 import hcmut.team15.emergencysupport.login.TokenVar
+import hcmut.team15.emergencysupport.profile.ProfileActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -81,6 +82,10 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.contactBtn).setOnClickListener {
             val intent = Intent(this, ContactActivity::class.java)
+            startActivity(intent)
+        }
+        findViewById<Button>(R.id.profile_btn).setOnClickListener{
+            val intent = Intent(this, ProfileActivity::class.java)
             startActivity(intent)
         }
     }

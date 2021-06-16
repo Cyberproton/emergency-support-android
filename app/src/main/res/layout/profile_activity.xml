@@ -17,117 +17,10 @@
         android:src="@drawable/ic_baseline_arrow_back_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.071"
+        app:layout_constraintHorizontal_bias="0.097"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.028" />
-
-    <Button
-        android:id="@+id/menu_victim_calls_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Apply"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scrollView2"
-        app:layout_constraintVertical_bias="0.36"
-        tools:ignore="HardcodedText" />
-
-    <ScrollView
-        android:id="@+id/scrollView2"
-        android:layout_width="411dp"
-        android:layout_height="441dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <EditText
-                android:id="@+id/editTextUserName"
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_margin="12dp"
-                android:layout_marginTop="36dp"
-                android:background="@drawable/register_edit_text_background"
-                android:drawableStart="@drawable/ic_baseline_person_24"
-                android:ems="10"
-                android:hint=" Username:"
-                android:importantForAutofill="no"
-                android:padding="6dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.175"
-                tools:ignore="HardcodedText" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_margin="12dp"
-                android:background="@drawable/register_edit_text_background"
-                android:drawableStart="@drawable/ic_baseline_phone_24"
-                android:hint=" Phone Number:"
-                android:importantForAutofill="no"
-                android:padding="6dp"
-                tools:ignore="HardcodedText" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_margin="12dp"
-                android:background="@drawable/register_edit_text_background"
-                android:drawableStart="@drawable/ic_baseline_place_24"
-                android:hint=" Address:"
-                android:importantForAutofill="no"
-                android:padding="6dp"
-                tools:ignore="HardcodedText" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_margin="12dp"
-                android:background="@drawable/register_edit_text_background"
-                android:drawableStart="@drawable/ic_baseline_calendar_today_24"
-                android:hint=" Date of birth:"
-                android:importantForAutofill="no"
-                android:padding="6dp"
-                tools:ignore="HardcodedText" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_margin="12dp"
-                android:background="@drawable/register_edit_text_background"
-                android:drawableStart="@drawable/ic_baseline_favorite_24"
-                android:hint=" Blood Type:"
-                android:importantForAutofill="no"
-                android:padding="6dp"
-                tools:ignore="HardcodedText" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_margin="12dp"
-                android:background="@drawable/register_edit_text_background"
-                android:drawableStart="@drawable/ic_baseline_local_hospital_24"
-                android:hint=" Allergy:"
-                android:importantForAutofill="no"
-                android:padding="6dp"
-                tools:ignore="HardcodedText" />
-
-
-        </LinearLayout>
-
-    </ScrollView>
-
+        app:layout_constraintVertical_bias="0.059" />
     <TextView
         android:id="@+id/textView4"
         android:layout_width="142dp"
@@ -136,11 +29,212 @@
         android:text="Profile"
         android:textSize="34sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/scrollView2"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.47"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.231"
+        app:layout_constraintVertical_bias="0.063"
         tools:ignore="HardcodedText" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="468dp"
+        android:layout_marginRight="6dp"
+        android:layout_marginLeft="6dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        app:layout_constraintVertical_bias="0.184">
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:text="Name"
+            app:layout_constraintBottom_toTopOf="@+id/editTextName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.085"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView4"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <EditText
+            android:id="@+id/editTextName"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginRight="6dp"
+            android:layout_marginLeft="6dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/register_edit_text_background"
+            android:drawableStart="@drawable/ic_baseline_person_24"
+            android:ems="10"
+            android:importantForAutofill="no"
+            android:padding="6dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.666"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.175"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:text="Phone Number"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.09"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextPhoneNumber"
+            tools:ignore="HardCodedText" />
+
+        <EditText
+            android:id="@+id/editTextPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginRight="6dp"
+            android:layout_marginLeft="6dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/register_edit_text_background"
+            android:drawableStart="@drawable/ic_baseline_phone_24"
+            android:importantForAutofill="no"
+            android:padding="6dp"
+            tools:ignore="HardcodedText"
+            tools:layout_editor_absoluteX="12dp"
+            tools:layout_editor_absoluteY="193dp" />
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:text="Address"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.09"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextAddress" />
+
+        <EditText
+            android:id="@+id/editTextAddress"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginRight="6dp"
+            android:layout_marginLeft="6dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/register_edit_text_background"
+            android:drawableStart="@drawable/ic_baseline_place_24"
+            android:importantForAutofill="no"
+            android:padding="6dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView8"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:text="Date of Birth"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.045"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextBirthDay" />
+
+        <EditText
+            android:id="@+id/editTextBirthDay"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginRight="6dp"
+            android:layout_marginLeft="6dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/register_edit_text_background"
+            android:drawableStart="@drawable/ic_baseline_calendar_today_24"
+            android:importantForAutofill="no"
+            android:inputType="date"
+            android:padding="6dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView9"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/textView11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:text="Blood type"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextBloodType" />
+
+        <EditText
+            android:id="@+id/editTextBloodType"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginRight="6dp"
+            android:layout_marginLeft="6dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/register_edit_text_background"
+            android:drawableStart="@drawable/ic_baseline_favorite_24"
+            android:importantForAutofill="no"
+            android:padding="6dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView10"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:text="Allergy"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.09"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextName" />
+
+        <EditText
+            android:id="@+id/editTextAllergy"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:background="@drawable/register_edit_text_background"
+            android:drawableStart="@drawable/ic_baseline_local_hospital_24"
+            android:importantForAutofill="no"
+            android:padding="6dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView11"
+            app:layout_constraintVertical_bias="0.0"
+            tools:ignore="HardcodedText" />
+
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/apply_btn"
+        android:layout_width="176dp"
+        android:layout_height="46dp"
+        android:text="Apply changes"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
+        app:layout_constraintVertical_bias="0.483"
+        tools:ignore="HardcodedText" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
