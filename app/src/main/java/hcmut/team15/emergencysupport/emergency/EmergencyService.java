@@ -181,7 +181,7 @@ public class EmergencyService extends Service {
     public void onCreate() {
         Log.d("EmergencyService", "Service created");
         super.onCreate();
-        createSocket(getString(R.string.server_url_emulator));
+        createSocket(getString(R.string.server_url));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForeground(2, getForegroundNotification());
         }

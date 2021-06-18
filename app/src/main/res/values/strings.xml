@@ -1,5 +1,5 @@
 <resources>
-    <string name="server_url">http://localhost:3000</string>
+    <string name="server_url">https://nameless-tor-76402.herokuapp.com/</string>
     <string name="server_url_emulator">http://10.0.2.2:3000</string>
     <string name="app_name">EmergencySupport</string>
     <string name="login_btn">SIGN IN</string>
