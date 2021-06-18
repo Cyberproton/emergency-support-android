@@ -42,6 +42,7 @@ import retrofit2.Response;
 public class ProfileActivity extends AppCompatActivity {
     private ProfileInterface profileInterface;
 
+    //Google-map
     SupportMapFragment supportMapFragment;
     double lat,lng;
     String addressLine;
@@ -52,6 +53,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_activity);
 
+        //Google-map
         supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.userMap);
         userLocation = findViewById(R.id.userLocation);
         supportMapFragment.getMapAsync(new OnMapReadyCallback() {
