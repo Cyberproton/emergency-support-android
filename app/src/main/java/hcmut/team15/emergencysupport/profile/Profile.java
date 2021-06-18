@@ -4,13 +4,13 @@ public class Profile {
     String name;
     String phone;
     String address;
-    String allergy;
+    String allergens;
 
-    public Profile(String name, String phone, String address, String allergy, String dateOfBirth, String bloodType) {
+    public Profile(String name, String phone, String address, String allergens, String dateOfBirth, String bloodType) {
         this.name = name;
         this.phone = phone;
         this.address = address;
-        this.allergy = allergy;
+        this.allergens = allergens;
         this.dateOfBirth = dateOfBirth;
         this.bloodType = bloodType;
     }
@@ -39,12 +39,12 @@ public class Profile {
         this.address = address;
     }
 
-    public String getAllergy() {
-        return allergy;
+    public String getAllergens() {
+        return allergens;
     }
 
-    public void setAllergy(String allergy) {
-        this.allergy = allergy;
+    public void setAllergens(String allergens) {
+        this.allergens = allergens;
     }
 
     public String getDateOfBirth() {

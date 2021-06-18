@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import hcmut.team15.emergencysupport.call.CallActivity;
 import hcmut.team15.emergencysupport.emergency.EmergencyActivity;
+import hcmut.team15.emergencysupport.login.ForgotPasswordActivity;
+import hcmut.team15.emergencysupport.login.LoginActivity;
+import hcmut.team15.emergencysupport.profile.ProfileActivity;
 
 public class MenuActivity extends AppCompatActivity {
     @Override
@@ -25,6 +28,11 @@ public class MenuActivity extends AppCompatActivity {
         victimCallsBtn.setOnClickListener(view -> {
             Intent intent = new Intent(this, CallActivity.class);
             startActivity(intent);
+        });
+        Button profile = findViewById(R.id.menu_user_info_btn);
+        profile.setOnClickListener(view ->{
+            Intent myIntent = new Intent(MenuActivity.this, ProfileActivity.class);
+            startActivity(myIntent);
         });
 
     }

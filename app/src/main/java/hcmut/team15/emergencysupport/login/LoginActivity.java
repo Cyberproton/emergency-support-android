@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
+import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,8 +15,10 @@ import android.widget.Button;
 import java.util.HashMap;
 import java.util.Map;
 import android.util.Log;
+import android.widget.Toast;
 
 import hcmut.team15.emergencysupport.MainActivity;
+import hcmut.team15.emergencysupport.MenuActivity;
 import hcmut.team15.emergencysupport.R;
 import hcmut.team15.emergencysupport.register.RegisterActivity1;
 import hcmut.team15.emergencysupport.MainApplication;
@@ -78,7 +81,6 @@ public class LoginActivity extends AppCompatActivity {
 
     }
     private void Login(String username, String password) {
-        Log.d("Login", "Fake");
         Map<String, String> body = new HashMap<>();
         body.put("username", username);
         body.put("password", password);
@@ -87,27 +89,19 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful()){
-                    Log.d("message", response.body().getMessage());
-                    Log.d("accessToken", response.body().getAccessToken());
-                    Log.d("refreshToken", response.body().getRefreshToken());
                     int responseStatusCode = response.code();
                     if (responseStatusCode == 200){
                         TokenVar.AccessToken = response.body().getAccessToken();
                         TokenVar.RefreshToken = response.body().getRefreshToken();
-                        Intent myIntent1 = new Intent(LoginActivity.this, MainActivity.class);
+                        Intent myIntent1 = new Intent(LoginActivity.this, MenuActivity.class);
                         startActivity(myIntent1);
                     }
-                    else if (responseStatusCode == 400){
-                        Log.d("Login failed", "username or password is in correct");
-                    }
-                    else{
-                        Log.d("Server error", "Server error");
-                    }
                 }
+                Toast.makeText(getApplicationContext(),"Username does not exist or password is incorrect", Toast.LENGTH_LONG).show();
             }
             @Override
-            public void onFailure(Call<LoginResponse>   call, Throwable t) {
-                Log.d("registerService", "onFailure to update account on server");
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+//                Toast.makeText(getApplicationContext(),"Username does not exist or password is incorrect", Toast.LENGTH_LONG).show();
             }
         });
     }
