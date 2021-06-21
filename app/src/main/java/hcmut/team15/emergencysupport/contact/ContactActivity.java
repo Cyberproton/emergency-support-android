@@ -1,10 +1,16 @@
 package hcmut.team15.emergencysupport.contact;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +20,7 @@ import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import hcmut.team15.emergencysupport.MainApplication;
@@ -28,19 +35,45 @@ public class ContactActivity extends AppCompatActivity {
     private RecyclerView contactRecyclerView;
     private ContactAdapter contactAdapter;
     private RecyclerView.LayoutManager contactLayoutManager;
+    private ArrayList<Contact> contacts = new ArrayList<>(), contactss;
 
+    private SearchView contactSearchView;
+    private Button contactAddBtn;
+    private int REQ_ADD_CODE = -1;
 
     private ContactInterface contactInterface = MainApplication.getInstance().getRetrofit().create(ContactInterface.class);
+
+
 
     @Override
     protected void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
 
-        ArrayList<Contact> contacts = new ArrayList<>();
-        contacts.add(new Contact("a", "1", "0123456789"));
-        contacts.add(new Contact("b", "1", "0123456789"));
-        contacts.add(new Contact("c", "1", "0123456789"));
+        contactInterface.getContacts(MainApplication.VICTIM_ACCESS).enqueue(new Callback<ContactsResponse>() {
+            @Override
+            public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
+                ContactsResponse res = response.body();
+                if(res != null){
+                    ArrayList<Contact> contactList = new ArrayList<>(res.getContacts());
+                    contacts.addAll(contactList);
+                    contactss.addAll(contactList);
+
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ContactsResponse> call, Throwable t) {
+                Log.d(getClass().getSimpleName(), t.getMessage());
+            }
+        });
+
+        contactAddBtn = findViewById(R.id.contact_add_btn);
+        contactSearchView = findViewById(R.id.contact_search);
+
+
+        contactss = new ArrayList<>(contacts);
 
         contactRecyclerView = findViewById(R.id.contacts_recycle_view);
         contactRecyclerView.setHasFixedSize(true);
@@ -49,123 +82,204 @@ public class ContactActivity extends AppCompatActivity {
         contactRecyclerView.setLayoutManager(contactLayoutManager);
         contactRecyclerView.setAdapter(contactAdapter);
 
+        setEvent();
+        contactSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                getFilter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                getFilter(newText);
+                return false;
+            }
+        });
+
+        contactSearchView.setOnCloseListener(() -> {
+            contactAddBtn.setVisibility(View.VISIBLE);
+
+            return false;
+        });
+
+        contactSearchView.setOnSearchClickListener(v -> {
+            contactAddBtn.setVisibility(View.GONE);
+        });
+
+
+
+
+        contactAddBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(ContactActivity.this, ContactAdd_UpdateActivity.class);
+            startActivityForResult(intent, contacts.size());
+
+        });
+    }
+
+    private void getFilter(String query) {
+        contacts.clear();
+        contactAdapter.notifyDataSetChanged();
+        if(query.isEmpty()){
+            contacts.addAll(contactss);
+        }
+        else{
+            for(Contact contact : contactss){
+                if(!contact.getPhone().equals("0")){
+                    if(contact.getName().toLowerCase().contains(query.toLowerCase())){
+                        contacts.add(contact);
+                    }
+                }
+            }
+        }
+        contactAdapter.notifyDataSetChanged();
+    }
+
+    private void setEvent() {
         contactAdapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
             @Override
             public void onItemCLick(int position) {
                 Contact contact = contacts.get(position);
                 contact.setExpanded(!contact.isExpanded());
-                contactAdapter.notifyItemChanged(position);
-                /*
-                contacts.get(position).setName("Click" + position);
+
                 contactAdapter.notifyItemChanged(position);
 
-                 */
             }
 
             @Override
             public void onCallCLick(int position) {
-                Toast.makeText(getApplicationContext(), "Call", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Call "+ position, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onEditCLick(int position) {
-                Toast.makeText(getApplicationContext(), "Edit", Toast.LENGTH_LONG).show();
+                edit(position);
             }
 
             @Override
             public void onDeleteCLick(int position) {
-                Toast.makeText(getApplicationContext(), "Delete", Toast.LENGTH_LONG).show();
+                confirmDeletion(position);
+                Toast.makeText(getApplicationContext(), "Delete " + position, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void edit(int position) {
+
+        Contact contact = contacts.get(position);
+        boolean c = contact.getName().charAt(0) == '*';
+        if(c){
+            AlertDialog.Builder deleteAlertDialog = new AlertDialog.Builder(this);
+            myownDialog(deleteAlertDialog, "Xóa số khỏi danh bạ", "Bạn không chỉnh sửa\nvì đây là số mặc định", "Tôi đã hiểu");
+            deleteAlertDialog.show();
+        }
+        else{
+            Intent intent = new Intent(ContactActivity.this, ContactAdd_UpdateActivity.class);
+            startActivityForResult(intent, position);
+        }
+
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onActivityResult(int requestCode, int resultCode,  Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK && data != null) {
+            String name = data.getStringExtra("name"), phone = data.getStringExtra("phone");
+            if (requestCode == contacts.size()) {
 
-        /*
+                Map<String, String> body1 = new HashMap<>();
+                body1.put("name", name);
+                body1.put("phone", phone);
+                contactInterface.addContact(MainApplication.VICTIM_ACCESS, body1).enqueue(new Callback<ContactsResponse>() {
+                    @Override
+                    public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
+                        ContactsResponse res = response.body();
+                        Contact contact = res.getContact();
 
-        contactInterface.getContact(MainApplication.VICTIM_ACCESS, "60c96dc664f2d92db8f1f84c").enqueue(new Callback<ContactsResponse>() {
-            @Override
-            public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
-                ContactsResponse res = response.body();
-                Log.d("Single Contact", res.getContact().getName());
-                Log.d("Single Contact", res.getContact().getPhone());
+                        contacts.add(contact);
+                        contactAdapter.notifyItemInserted(contacts.size());
+                        contactss.add(contact);
+                    }
+
+                    @Override
+                    public void onFailure(Call<ContactsResponse> call, Throwable t) {
+                        Log.d(getClass().getSimpleName(), t.getMessage());
+                    }
+                });
+
+            } else {
+                Contact contact = contacts.get(requestCode);
+
+                Map<String, String> body = new HashMap<>();
+                body.put("name", name);
+                body.put("phone", phone);
+                contactInterface.updateContact(MainApplication.VICTIM_ACCESS, contact.get_id(), body).enqueue(new Callback<ContactsResponse>() {
+                    @Override
+                    public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
+                        ContactsResponse res = response.body();
+                        Contact contact = contacts.get(requestCode);
+                        int initialPos = contactss.indexOf(contact);
+                        contact.setName(res.getContact().getName());
+                        contact.setPhone(res.getContact().getPhone());
+                        contactAdapter.notifyItemChanged(requestCode);
+
+                        Contact initialContact = contactss.get(initialPos);
+                        initialContact.setName(res.getContact().getName());
+                        initialContact.setPhone(res.getContact().getPhone());
+                    }
+
+                    @Override
+                    public void onFailure(Call<ContactsResponse> call, Throwable t) {
+                        Log.d(getClass().getSimpleName(), t.getMessage());
+                    }
+                });
+
             }
-
-            @Override
-            public void onFailure(Call<ContactsResponse> call, Throwable t) {
-                Log.d(getClass().getSimpleName(), t.getMessage());
-            }
-        });
-
-        Map<String, String> body = new HashMap<>();
-        body.put("name", "quan");
-        body.put("phone", "0000000001");
-        contactInterface.updateContact(MainApplication.VICTIM_ACCESS, "60c96dc664f2d92db8f1f84c", body).enqueue(new Callback<ContactsResponse>() {
-            @Override
-            public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
-                ContactsResponse res = response.body();
-                Log.d("Update Contact", res.getContact().getName());
-                Log.d("Update Contact", res.getContact().getPhone());
-            }
-
-            @Override
-            public void onFailure(Call<ContactsResponse> call, Throwable t) {
-                Log.d(getClass().getSimpleName(), t.getMessage());
-            }
-        });
-
-        Map<String, String> body1 = new HashMap<>();
-        body1.put("name", "add");
-        body1.put("phone", "0000000002");
-        contactInterface.addContact(MainApplication.VICTIM_ACCESS, body1).enqueue(new Callback<ContactsResponse>() {
-            @Override
-            public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
-                ContactsResponse res = response.body();
-                Log.d("Add Contact", res.getContact().getName());
-                Log.d("Add Contact", res.getContact().getPhone());
-            }
-
-            @Override
-            public void onFailure(Call<ContactsResponse> call, Throwable t) {
-                Log.d(getClass().getSimpleName(), t.getMessage());
-            }
-        });
-
-        contactInterface.getContacts(MainApplication.VICTIM_ACCESS).enqueue(new Callback<ContactsResponse>() {
-            @Override
-            public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
-                ContactsResponse res = response.body();
-                Log.d("Contact", "" + (res == null));
-                Log.d("Contact", "" + res.getContacts().size());
-                Log.d("Contact", res.getContacts().get(0).getPhone());
-            }
-
-            @Override
-            public void onFailure(Call<ContactsResponse> call, Throwable t) {
-                Log.d(getClass().getSimpleName(), t.getMessage());
-            }
-        });
-
-        contactInterface.deleteContact(MainApplication.VICTIM_ACCESS, "60c97f9864f2d92db8f2036a").enqueue(new Callback<ContactsResponse>() {
-            @Override
-            public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
-                Toast.makeText(getApplicationContext(), "Delete", Toast.LENGTH_LONG).show();
-                ContactsResponse res = response.body();
-                Log.d("Delete Contact", "Success!");
-                Log.d("Delete Contact", res.getContact().getName());
-                Log.d("Delete Contact", res.getContact().getPhone());
-            }
-
-            @Override
-            public void onFailure(Call<ContactsResponse> call, Throwable t) {
-                Log.d(getClass().getSimpleName(), t.getMessage());
-            }
-        });
-         */
-
-
-
+        }
     }
+
+    public void confirmDeletion(int position){
+        AlertDialog.Builder deleteAlertDialog = new AlertDialog.Builder(this);
+        Contact contact = contacts.get(position);
+
+        String name = contact.getName();
+        boolean c = name.charAt(0) == '*';
+        if(c){
+            myownDialog(deleteAlertDialog, "Xóa số khỏi danh bạ", "Bạn không thể xóa \nvì đây là số mặc định", "Tôi đã hiểu");
+        }
+        else{
+            String title = "Xoá số khỏi danh bạ", message =  "Tên: " + contact.getName() + "\nSĐT: " + contact.getPhone(), closeTitle = "Hủy bỏ";
+            int initialPos = contactss.indexOf(contact);
+            myownDialog(deleteAlertDialog, title, message, closeTitle);
+
+            deleteAlertDialog.setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    contactInterface.deleteContact(MainApplication.VICTIM_ACCESS, contact.get_id()).enqueue(new Callback<ContactsResponse>() {
+                        @Override
+                        public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<ContactsResponse> call, Throwable t) {
+                            Log.d(getClass().getSimpleName(), t.getMessage());
+                        }
+                    });
+
+                    contacts.remove(position);
+                    contactAdapter.notifyItemRemoved(position);
+                    contactss.remove(initialPos);
+                }
+            });
+        }
+        deleteAlertDialog.show();
+    }
+
+    private void myownDialog(AlertDialog.Builder deleteAlertDialog, String title, String message, String closeTitle) {
+        deleteAlertDialog.setTitle(title);
+        deleteAlertDialog.setMessage(message);
+        deleteAlertDialog.setNegativeButton(closeTitle, (dialog, which) -> dialog.cancel());
+    }
+
 }

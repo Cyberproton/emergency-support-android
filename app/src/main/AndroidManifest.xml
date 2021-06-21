@@ -13,8 +13,6 @@
 
     <uses-feature android:name="android.hardware.usb.host" />
 
-
-
     <application
         android:name=".MainApplication"
         android:allowBackup="true"
@@ -24,12 +22,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EmergencySupport"
         android:usesCleartextTraffic="true">
+        <activity android:name=".contact.ContactAdd_UpdateActivity"></activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyANPkkThf1aanUc6CMz9SVwb-9mKGbnh2g" />
 
-        <activity android:name=".emergency.NotifyFromVolunteerActivity"></activity>
+        <activity android:name=".emergency.NotifyFromVolunteerActivity" />
         <activity android:name=".emergency.CoundownActivity" />
         <activity android:name=".MenuActivity" />
         <activity android:name=".register.RegisterActivity1" />
@@ -37,10 +36,10 @@
         <activity android:name=".emergency.EmergencyCaseActivity" />
         <activity android:name=".call.CallActivity" />
         <activity android:name=".emergency.VolunteerActivity" />
-        <activity android:name=".contact.ContactActivity"/>
-        <activity android:name=".MainActivity"/>
-        <activity android:name=".login.ForgotPasswordActivity"/>
-        <activity android:name=".profile.ProfileActivity"/>
+        <activity android:name=".contact.ContactActivity" />
+        <activity android:name=".MainActivity" />
+        <activity android:name=".login.ForgotPasswordActivity" />
+        <activity android:name=".profile.ProfileActivity" />
         <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

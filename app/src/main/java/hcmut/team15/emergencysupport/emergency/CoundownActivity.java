@@ -52,4 +52,6 @@ public class CoundownActivity extends AppCompatActivity {
         Intent menu_intent = new Intent(CoundownActivity.this, EmergencyActivity.class);
         startActivity(menu_intent);
     }
+
+
 }
