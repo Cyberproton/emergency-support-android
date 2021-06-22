@@ -60,7 +60,7 @@ public class MainApplication extends Application implements Application.Activity
         super.onCreate();
         instance = this;
         retrofit = new Retrofit.Builder()
-                .baseUrl(BACKEND_URI)
+                .baseUrl(getString(R.string.server_url))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         you = new User(VICTIM_USERNAME, "", null);

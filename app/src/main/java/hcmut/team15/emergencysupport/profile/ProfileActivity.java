@@ -1,19 +1,28 @@
 package hcmut.team15.emergencysupport.profile;
 
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import hcmut.team15.emergencysupport.MainActivity;
 import hcmut.team15.emergencysupport.MainApplication;
 import hcmut.team15.emergencysupport.MenuActivity;
 import hcmut.team15.emergencysupport.R;
@@ -24,6 +33,8 @@ import retrofit2.Response;
 
 public class ProfileActivity extends AppCompatActivity {
     private ProfileInterface profileInterface;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +83,7 @@ public class ProfileActivity extends AppCompatActivity {
         EditText dateOfBirth = findViewById(R.id.editTextBirthDay);
         EditText bloodType = findViewById(R.id.editTextBloodType);
         EditText allergy = findViewById(R.id.editTextAllergy);
+
         profileInterface.getProfile(TokenVar.AccessToken).enqueue(new Callback<ProfileResponse>() {
             @Override
             public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
@@ -90,5 +102,6 @@ public class ProfileActivity extends AppCompatActivity {
                 Log.d("error", "error");
             }
         });
+
     }
 }

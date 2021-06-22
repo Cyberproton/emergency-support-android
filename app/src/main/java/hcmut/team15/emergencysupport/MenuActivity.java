@@ -7,6 +7,7 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import hcmut.team15.emergencysupport.call.CallActivity;
+import hcmut.team15.emergencysupport.contact.ContactActivity;
 import hcmut.team15.emergencysupport.emergency.EmergencyActivity;
 import hcmut.team15.emergencysupport.login.AccountManagement;
 import hcmut.team15.emergencysupport.login.ForgotPasswordActivity;
@@ -41,5 +42,10 @@ public class MenuActivity extends AppCompatActivity {
             startActivity(myIntent);
         });
 
+        Button contact = findViewById(R.id.menu_contacts_btn);
+        contact.setOnClickListener(view ->{
+            Intent myIntent = new Intent(MenuActivity.this, ContactActivity.class);
+            startActivity(myIntent);
+        });
     }
 }

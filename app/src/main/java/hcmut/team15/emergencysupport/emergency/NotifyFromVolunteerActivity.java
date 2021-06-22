@@ -122,4 +122,11 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         Snackbar sb = Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG);
         sb.show();
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(NotifyFromVolunteerActivity.this, EmergencyActivity.class);
+        startActivity(intent);
+        super.onBackPressed();
+    }
 }
