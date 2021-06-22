@@ -35,7 +35,7 @@ public class ContactActivity extends AppCompatActivity {
     private RecyclerView contactRecyclerView;
     private ContactAdapter contactAdapter;
     private RecyclerView.LayoutManager contactLayoutManager;
-    private ArrayList<Contact> contacts = new ArrayList<>(), contactss;
+    private ArrayList<Contact> contacts = new ArrayList<>(), contactss = new ArrayList<>();
 
     private SearchView contactSearchView;
     private Button contactAddBtn;
@@ -50,6 +50,26 @@ public class ContactActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
 
+
+        contactAddBtn = findViewById(R.id.contact_add_btn);
+        contactSearchView = findViewById(R.id.contact_search);
+
+
+        /*
+        contacts.add(new Contact("a","","0123456789"));
+        contacts.add(new Contact("a","","0123456789"));
+        contacts.add(new Contact("a","","0123456789"));
+        contacts.add(new Contact("a","","0123456789"));
+        contactss.addAll(contacts);
+
+         */
+        contactRecyclerView = findViewById(R.id.contacts_recycle_view);
+        contactRecyclerView.setHasFixedSize(true);
+        contactLayoutManager = new LinearLayoutManager(this);
+        contactAdapter = new ContactAdapter(contacts);
+        contactRecyclerView.setLayoutManager(contactLayoutManager);
+        contactRecyclerView.setAdapter(contactAdapter);
+
         contactInterface.getContacts(MainApplication.VICTIM_ACCESS).enqueue(new Callback<ContactsResponse>() {
             @Override
             public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
@@ -58,8 +78,7 @@ public class ContactActivity extends AppCompatActivity {
                     ArrayList<Contact> contactList = new ArrayList<>(res.getContacts());
                     contacts.addAll(contactList);
                     contactss.addAll(contactList);
-
-
+                    contactAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -69,18 +88,7 @@ public class ContactActivity extends AppCompatActivity {
             }
         });
 
-        contactAddBtn = findViewById(R.id.contact_add_btn);
-        contactSearchView = findViewById(R.id.contact_search);
 
-
-        contactss = new ArrayList<>(contacts);
-
-        contactRecyclerView = findViewById(R.id.contacts_recycle_view);
-        contactRecyclerView.setHasFixedSize(true);
-        contactLayoutManager = new LinearLayoutManager(this);
-        contactAdapter = new ContactAdapter(contacts);
-        contactRecyclerView.setLayoutManager(contactLayoutManager);
-        contactRecyclerView.setAdapter(contactAdapter);
 
         setEvent();
         contactSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -106,8 +114,6 @@ public class ContactActivity extends AppCompatActivity {
         contactSearchView.setOnSearchClickListener(v -> {
             contactAddBtn.setVisibility(View.GONE);
         });
-
-
 
 
         contactAddBtn.setOnClickListener(v -> {
