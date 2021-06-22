@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import hcmut.team15.emergencysupport.call.CallActivity;
 import hcmut.team15.emergencysupport.emergency.EmergencyActivity;
+import hcmut.team15.emergencysupport.login.AccountManagement;
 import hcmut.team15.emergencysupport.login.ForgotPasswordActivity;
 import hcmut.team15.emergencysupport.login.LoginActivity;
 import hcmut.team15.emergencysupport.profile.ProfileActivity;
@@ -23,7 +24,6 @@ public class MenuActivity extends AppCompatActivity {
             Intent intent = new Intent(this, EmergencyActivity.class);
             startActivity(intent);
         });
-
         Button victimCallsBtn = findViewById(R.id.menu_victim_calls_btn);
         victimCallsBtn.setOnClickListener(view -> {
             Intent intent = new Intent(this, CallActivity.class);
@@ -32,6 +32,12 @@ public class MenuActivity extends AppCompatActivity {
         Button profile = findViewById(R.id.menu_user_info_btn);
         profile.setOnClickListener(view ->{
             Intent myIntent = new Intent(MenuActivity.this, ProfileActivity.class);
+            startActivity(myIntent);
+        });
+        Button logout = findViewById(R.id.menu_logout_btn);
+        logout.setOnClickListener(view ->{
+            AccountManagement.setUserLoggedInStatus(MenuActivity.this, false);
+            Intent myIntent = new Intent(MenuActivity.this, LoginActivity.class);
             startActivity(myIntent);
         });
 

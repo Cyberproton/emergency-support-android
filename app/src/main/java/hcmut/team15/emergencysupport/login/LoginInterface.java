@@ -12,8 +12,6 @@ import retrofit2.http.Header;
 import retrofit2.http.POST;
 
 public interface LoginInterface {
-
-
     @POST("/api/login")
     Call<LoginResponse> executeLogin(@Body Map<String, String> body);
 
