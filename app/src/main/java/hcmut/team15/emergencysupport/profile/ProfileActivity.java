@@ -42,46 +42,12 @@ import retrofit2.Response;
 public class ProfileActivity extends AppCompatActivity {
     private ProfileInterface profileInterface;
 
-    //Google-map
-    SupportMapFragment supportMapFragment;
-    double lat,lng;
-    String addressLine;
-    TextView userLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_activity);
-
-        //Google-map
-        supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.userMap);
-        userLocation = findViewById(R.id.userLocation);
-        supportMapFragment.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull @NotNull GoogleMap googleMap) {
-                try {
-                    Geocoder geocoder = new Geocoder(ProfileActivity.this
-                            , Locale.getDefault());
-
-                    List<Address> addresses = geocoder.getFromLocation(
-                            60, 60, 1
-                    );
-
-                    lat = addresses.get(0).getLatitude();
-                    lng = addresses.get(0).getLongitude();
-                    addressLine = addresses.get(0).getAddressLine(0);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                userLocation.setText("Tôi đang đứng ở: " + addressLine);
-                LatLng latLng = new LatLng(lat, lng);
-                MarkerOptions options = new MarkerOptions().position(latLng).title("I am there");
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
-                googleMap.addMarker(options);
-            }
-        });
 
         profileInterface = MainApplication.getInstance().getRetrofit().create(ProfileInterface.class);
         Button apply_btn = findViewById(R.id.apply_btn);
