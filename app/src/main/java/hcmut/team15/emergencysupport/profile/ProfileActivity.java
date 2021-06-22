@@ -14,14 +14,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -43,12 +35,10 @@ public class ProfileActivity extends AppCompatActivity {
     private ProfileInterface profileInterface;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_activity);
-
         profileInterface = MainApplication.getInstance().getRetrofit().create(ProfileInterface.class);
         Button apply_btn = findViewById(R.id.apply_btn);
         apply_btn.setOnClickListener(new View.OnClickListener() {
@@ -60,19 +50,13 @@ public class ProfileActivity extends AppCompatActivity {
                 EditText dateOfBirthText = findViewById(R.id.editTextBirthDay);
                 EditText bloodTypeText = findViewById(R.id.editTextBloodType);
                 EditText allergyText = findViewById(R.id.editTextAllergy);
-                String name = nameText.getText().toString();
-                String phone = phoneText.getText().toString();
-                String address = addressText.getText().toString();
-                String dateOfBirth = dateOfBirthText.getText().toString();
-                String bloodType = bloodTypeText.getText().toString();
-                String allergy = allergyText.getText().toString();
                 Map<String, String> body = new HashMap<>();
-                body.put("name", name);
-                body.put("phone", phone);
-                body.put("address", address);
-                body.put("dateOfBirth", dateOfBirth);
-                body.put("bloodType", bloodType);
-                body.put("allergens", allergy);
+                body.put("name", nameText.getText().toString());
+                body.put("phone", phoneText.getText().toString());
+                body.put("address", addressText.getText().toString());
+                body.put("dateOfBirth", dateOfBirthText.getText().toString());
+                body.put("bloodType", bloodTypeText.getText().toString());
+                body.put("allergens", allergyText.getText().toString());
                 profileInterface.setProfile(TokenVar.AccessToken, body).enqueue(new Callback<ProfileResponse>() {
                     @Override
                     public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
@@ -111,7 +95,6 @@ public class ProfileActivity extends AppCompatActivity {
                       dateOfBirth.setText(response.body().getProfile().dateOfBirth);
                       bloodType.setText(response.body().getProfile().bloodType);
                       allergy.setText(response.body().getProfile().allergens);
-
                 }
             }
             @Override

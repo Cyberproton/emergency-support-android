@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
-import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,10 +13,9 @@ import android.widget.Button;
 
 import java.util.HashMap;
 import java.util.Map;
-import android.util.Log;
+
 import android.widget.Toast;
 
-import hcmut.team15.emergencysupport.MainActivity;
 import hcmut.team15.emergencysupport.MenuActivity;
 import hcmut.team15.emergencysupport.R;
 import hcmut.team15.emergencysupport.register.RegisterActivity1;
@@ -31,51 +29,46 @@ public class LoginActivity extends AppCompatActivity {
 
     private LoginInterface loginInterface;
     TextView t1;
+    public boolean logged_state = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
+        if (AccountManagement.getUserLoggedInStatus(this)){
+            Intent myIntent = new Intent(LoginActivity.this, MenuActivity.class);
+            startActivity(myIntent);
+        }
         //user-input here
 
         loginInterface = MainApplication.getInstance().getRetrofit().create(LoginInterface.class);
         EditText usernameText = findViewById(R.id.editTextUserName);
         EditText passwordText = findViewById(R.id.editTextTextPassword);
         //sign-in button
-        t1 = (TextView) findViewById(R.id.sign_up_text);
-        t1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        t1 = findViewById(R.id.sign_up_text);
+        t1.setOnClickListener(view -> {
                 Intent myIntent = new Intent(LoginActivity.this, RegisterActivity1.class);
                 startActivity(myIntent);
-
-            }
         });
         //forgot password textview
-        TextView t3 = (TextView) findViewById(R.id.f_password);
-        t3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        TextView t3 = findViewById(R.id.f_password);
+        t3.setOnClickListener(view -> {
                 Intent myIntent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
                 startActivity(myIntent);
-            }
         });
 
         //sign-in button
-        Button t2 = (Button) findViewById(R.id.sign_in_btn);
-        t2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String username = usernameText.getText().toString();
-                String password = passwordText.getText().toString();
-                if (username.length() == 0){
-                    usernameText.setError("Please Enter your Username");
-                }
-                else if (password.length() == 0){
-                    passwordText.setError("Please Enter your Password");
-                }
-                else {
-                    Login(username, password);
-                }
+        Button t2 = findViewById(R.id.sign_in_btn);
+        t2.setOnClickListener(view -> {
+            String username = usernameText.getText().toString();
+            String password = passwordText.getText().toString();
+            if (username.length() == 0){
+                usernameText.setError("Please Enter your Username");
+            }
+            else if (password.length() == 0){
+                passwordText.setError("Please Enter your Password");
+            }
+            else {
+                Login(username, password);
             }
         });
 
@@ -91,13 +84,16 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful()){
                     int responseStatusCode = response.code();
                     if (responseStatusCode == 200){
+                        AccountManagement.setUserLoggedInStatus(LoginActivity.this, true);
                         TokenVar.AccessToken = response.body().getAccessToken();
                         TokenVar.RefreshToken = response.body().getRefreshToken();
                         Intent myIntent1 = new Intent(LoginActivity.this, MenuActivity.class);
                         startActivity(myIntent1);
                     }
                 }
-                Toast.makeText(getApplicationContext(),"Username does not exist or password is incorrect", Toast.LENGTH_LONG).show();
+                else {
+                    Toast.makeText(getApplicationContext(), "Username does not exist or password is incorrect", Toast.LENGTH_LONG).show();
+                }
             }
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
@@ -115,7 +111,6 @@ public class LoginActivity extends AppCompatActivity {
             else{
                 passwordText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             }
-
         }
     }
 }
