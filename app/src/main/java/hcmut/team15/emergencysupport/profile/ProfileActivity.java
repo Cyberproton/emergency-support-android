@@ -87,7 +87,6 @@ public class ProfileActivity extends AppCompatActivity {
         profileInterface.getProfile(TokenVar.AccessToken).enqueue(new Callback<ProfileResponse>() {
             @Override
             public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
-                Log.d("name", response.body().getProfile().name + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                 if (response.code() == 200){
                       name.setText(response.body().getProfile().name);
                       phone.setText(response.body().getProfile().phone);

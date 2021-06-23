@@ -2,6 +2,7 @@ package hcmut.team15.emergencysupport.login;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.accounts.Account;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
@@ -34,9 +35,10 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
-        if (AccountManagement.getUserLoggedInStatus(this)){
+        if (AccountManagement.getUserLoggedInStatus() && AccountManagement.getLoggedInEmailUser() == TokenVar.AccessToken){
             Intent myIntent = new Intent(LoginActivity.this, MenuActivity.class);
             startActivity(myIntent);
+            finish();
         }
         //user-input here
 
@@ -84,11 +86,13 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful()){
                     int responseStatusCode = response.code();
                     if (responseStatusCode == 200){
-                        AccountManagement.setUserLoggedInStatus(LoginActivity.this, true);
+                        AccountManagement.setUserLoggedInStatus(true);
+                        AccountManagement.setPrefLoggedInUserEmail(TokenVar.AccessToken);
                         TokenVar.AccessToken = response.body().getAccessToken();
                         TokenVar.RefreshToken = response.body().getRefreshToken();
                         Intent myIntent1 = new Intent(LoginActivity.this, MenuActivity.class);
                         startActivity(myIntent1);
+                        finish();
                     }
                 }
                 else {
