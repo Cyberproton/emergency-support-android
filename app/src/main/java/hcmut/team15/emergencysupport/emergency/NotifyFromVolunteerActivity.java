@@ -1,5 +1,6 @@
 package hcmut.team15.emergencysupport.emergency;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -7,17 +8,30 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import hcmut.team15.emergencysupport.R;
 import hcmut.team15.emergencysupport.model.Case;
@@ -25,6 +39,7 @@ import hcmut.team15.emergencysupport.model.Location;
 import hcmut.team15.emergencysupport.model.User;
 import hcmut.team15.emergencysupport.notificationCard.Notification;
 import hcmut.team15.emergencysupport.notificationCard.notificationAdapter;
+import hcmut.team15.emergencysupport.profile.ProfileActivity;
 
 public class NotifyFromVolunteerActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
@@ -53,6 +68,12 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         }
     };
 
+    //Google-map
+    private SupportMapFragment supportMapFragment;
+    private double lat,lng;
+    private String addressLine;
+    private TextView userLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +96,35 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         Log.d(getClass().getSimpleName(), "Activity Started");
         super.onStart();
         bindService(new Intent(this, EmergencyService.class), emergencyServiceConnection, BIND_AUTO_CREATE);
+        //Google-map
+        supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.userMap);
+        userLocation = findViewById(R.id.userLocation);
+        supportMapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull @NotNull GoogleMap googleMap) {
+                try {
+                    Geocoder geocoder = new Geocoder(NotifyFromVolunteerActivity.this
+                            , Locale.getDefault());
+
+                    List<Address> addresses = geocoder.getFromLocation(
+                            60, 60, 1
+                    );
+
+                    lat = addresses.get(0).getLatitude();
+                    lng = addresses.get(0).getLongitude();
+                    addressLine = addresses.get(0).getAddressLine(0);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                userLocation.setText("Tôi đang đứng ở: " + addressLine);
+                LatLng latLng = new LatLng(lat, lng);
+                MarkerOptions options = new MarkerOptions().position(latLng).title("I am there");
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                googleMap.addMarker(options);
+            }
+        });
     }
 
     @Override
