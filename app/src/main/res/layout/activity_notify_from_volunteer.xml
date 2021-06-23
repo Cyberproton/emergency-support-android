@@ -6,37 +6,79 @@
     android:layout_height="match_parent"
     tools:context=".emergency.NotifyFromVolunteerActivity">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/notify_from_volunteer_title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/comfortaa_light"
+        android:text="PHÁT TÍN HIỆU KHẨN CẤP"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="8dp" />
+
+    <View
+        android:id="@+id/notify_from_volunteer_divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/notify_from_volunteer_title" />
+
+    <FrameLayout
+        android:id="@+id/user_map_frame"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/notify_from_volunteer_divider">
 
         <fragment
-            android:id="@+id/userMap"
+            android:id="@+id/user_map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="150dp" />
+            android:layout_height="match_parent" />
+    </FrameLayout>
 
-        <TextView
-            android:id="@+id/userLocation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tôi đang đứng ỏ: " />
+    <TextView
+        android:id="@+id/user_location_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Vị trí của bạn: "
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/user_map_frame" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="0dp"
-            android:layout_height="324dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            android:background="@android:color/darker_gray"
-            android:padding="4dp"
-            android:scrollbars="vertical">
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/border"
+        android:padding="8dp"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@id/bt_stopsignal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/user_location_label">
 
-        </androidx.recyclerview.widget.RecyclerView>
-
-    </LinearLayout>
+    </androidx.recyclerview.widget.RecyclerView>
 
     <Button
         android:id="@+id/bt_stopsignal"
@@ -44,8 +86,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
         android:layout_marginBottom="16dp"
         android:background="@color/design_default_color_error"
         android:onClick="stopSignal"
