@@ -20,6 +20,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <FrameLayout
+        android:id="@+id/volunteer_map_frame"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/volunteer_title">
+
+        <fragment
+            android:id="@+id/volunteer_map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
     <ScrollView
         android:id="@+id/volunteer_victim_info_scroll"
         android:layout_width="0dp"
@@ -31,20 +49,13 @@
         app:layout_constraintBottom_toTopOf="@+id/volunteer_accept_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/volunteer_title">
+        app:layout_constraintTop_toBottomOf="@id/volunteer_map_frame">
 
         <LinearLayout
             android:id="@+id/volunteer_victim_info_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/map_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Bản đồ"
-                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/volunteer_victim_distance_label"
@@ -97,6 +108,40 @@
                 app:layout_constraintTop_toBottomOf="@id/text_view_label_name" />
 
             <TextView
+                android:id="@+id/volunteer_victim_phone_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/volunteer_victim_phone_label"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/volunteer_victim_phone_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:padding="8dp"
+                android:text="@string/volunteer_victim_phone_content"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/volunteer_victim_address_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/volunteer_victim_address_label"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/volunteer_victim_address_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:padding="8dp"
+                android:text="@string/volunteer_victim_address_content"
+                android:textColor="@color/black" />
+
+            <TextView
                 android:id="@+id/volunteer_victim_dateofbirth_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -126,7 +171,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/volunteer_victim_bloodtype_content"
+                android:text="@string/volunteer_victim_bloodtype_label"
                 android:textColor="@color/black" />
 
             <TextView

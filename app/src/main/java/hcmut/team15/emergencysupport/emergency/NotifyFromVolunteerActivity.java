@@ -85,6 +85,7 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
     //Google-map
     private SupportMapFragment supportMapFragment;
     private GoogleMap googleMap;
+    private Geocoder geocoder;
     private double lat, lng;
     private String addressLine;
     private Marker marker;
@@ -134,13 +135,13 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         }
 
         //Google-map
-        supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.user_map);
+        supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.volunteer_map);
         userLocation = findViewById(R.id.user_location_label);
         supportMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull @NotNull GoogleMap googleMap) {
                 try {
-                    Geocoder geocoder = new Geocoder(NotifyFromVolunteerActivity.this
+                    geocoder = new Geocoder(NotifyFromVolunteerActivity.this
                             , Locale.getDefault());
 
                     List<Address> addresses = geocoder.getFromLocation(
@@ -155,7 +156,7 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                if (latestLocation.isNull()) {
+                if (latestLocation.isNull() || addressLine == null) {
                     userLocation.setText("Dịch vụ vị trí có thể đang gặp trục trặc");
                 } else {
                     userLocation.setText("Tôi đang đứng ở: " + addressLine);
@@ -204,16 +205,11 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
 
     public void updateCase(Case updated) {
         cs = updated;
-        User you = cs.getCaller();
         Location loc = cs.getCaller().getCurrentLocation();
         if (loc != null) {
             latestLocation = loc;
-            if (marker != null) {
-                marker.remove();
-            }
-
         }
-
+        updatePosition();
         exampleList.clear();
         for (User volunteer : cs.getVolunteers()) {
             float distance = Location.distanceBetween(cs.getCaller().getCurrentLocation(), volunteer.getCurrentLocation());
@@ -223,10 +219,29 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
     }
 
     public void updatePosition() {
+        if (googleMap == null || latestLocation == null) {
+            return;
+        }
+        try {
+            List<Address> addresses = geocoder.getFromLocation(
+                    latestLocation.getLatitude(), latestLocation.getLongitude(), 1
+            );
+            addressLine = addresses.get(0).getAddressLine(0);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
         LatLng latLng = new LatLng(latestLocation.getLatitude(), latestLocation.getLongitude());
         MarkerOptions options = new MarkerOptions().position(latLng).title("Bạn ở đây");
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        if (marker != null) {
+            marker.remove();
+        }
         marker = googleMap.addMarker(options);
+        if (latestLocation.isNull() || addressLine == null) {
+            userLocation.setText("Dịch vụ vị trí có thể đang gặp trục trặc");
+        } else {
+            userLocation.setText("Tôi đang đứng ở: " + addressLine);
+        }
     }
 
     public void onCaseClosed() {

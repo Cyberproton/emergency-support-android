@@ -29,6 +29,8 @@ import java.util.Map;
 
 import hcmut.team15.emergencysupport.MainApplication;
 import hcmut.team15.emergencysupport.R;
+import hcmut.team15.emergencysupport.login.AccountManagement;
+import hcmut.team15.emergencysupport.model.User;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -58,6 +60,7 @@ public class LocationService extends Service {
             @Override
             public void onLocationResult(@NonNull @NotNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
+                locationResult.getLastLocation();
                 onLocationReceived(locationResult.getLastLocation());
             }
         };
@@ -121,6 +124,7 @@ public class LocationService extends Service {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
             isRequestingLocationUpdates = true;
         } catch (SecurityException ex) {
+            removeLocationUpdates();
             Log.e("LocationService", "Location Permission may have not been granted");
         }
     }
@@ -131,6 +135,7 @@ public class LocationService extends Service {
             isRequestingLocationUpdates = false;
             stopSelf();
         } catch (SecurityException ex) {
+            isRequestingLocationUpdates = false;
             Log.e("LocationService", "Location Permission may have not been granted");
         }
     }
@@ -156,16 +161,20 @@ public class LocationService extends Service {
 
     private void onLocationReceived(Location location) {
         Log.d("LocationService", "Location received: " + location.toString());
-        MainApplication.you.setCurrentLocation(new hcmut.team15.emergencysupport.model.Location(location));
+        if (location == null || AccountManagement.getUserAccessToken() == null) {
+            Log.w("LocationService", "Could not make location request, location is null or user hasn't logged in");
+            return;
+        }
+        lastLocation = location;
         Map<String, String> body = new HashMap<>();
         body.put("longitude", String.valueOf(location.getLongitude()));
         body.put("latitude", String.valueOf(location.getLatitude()));
         body.put("altitude", String.valueOf(location.getAltitude()));
-        String token;
-        if (MainApplication.isVictim) {
-            token = MainApplication.VICTIM_ACCESS;
-        } else {
-            token = MainApplication.VOLUNTEER_ACCESS;
+        String token = AccountManagement.getUserAccessToken();
+        User user = AccountManagement.getUser();
+        if (user != null) {
+            user.setCurrentLocation(new hcmut.team15.emergencysupport.model.Location(location));
+            AccountManagement.setUser(user);
         }
         Call<Void> call = locationRequestInterface.updateMyLocation(body, token);
         call.enqueue(new Callback<Void>() {

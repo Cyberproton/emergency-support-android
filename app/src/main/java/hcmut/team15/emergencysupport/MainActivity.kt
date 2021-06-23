@@ -65,12 +65,12 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.asVictimBtn).setOnClickListener {
             MainApplication.VICTIM_ACCESS = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoidmljdGltIiwiaWF0IjoxNjIxNTg4MDk1LCJleHAiOjE2NTMxMjQwOTV9.cVbIAbUEjaxCF_dRTEJCLKQBt4PXk8UNGZEvISVnW3Q";
-            MainApplication.you = User(MainApplication.VICTIM_USERNAME, "", null)
+            //MainApplication.you = User(MainApplication.VICTIM_USERNAME, "", null)
         }
 
         findViewById<Button>(R.id.asVolunteerBtn).setOnClickListener {
             MainApplication.VICTIM_ACCESS = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoidm9sdW50ZWVyIiwiaWF0IjoxNjIxNTg4MDE2LCJleHAiOjE2NTMxMjQwMTZ9.UeeHdK07SWhVXb4oiND_kSCdiff-ZRFcb6RZXElIt5Q";
-            MainApplication.you = User(MainApplication.VOLUNTEER_USERNAME, "", null)
+            //MainApplication.you = User(MainApplication.VOLUNTEER_USERNAME, "", null)
         }
 
         findViewById<Button>(R.id.asRealDevice).setOnClickListener {

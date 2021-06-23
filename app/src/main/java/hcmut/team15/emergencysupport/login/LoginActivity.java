@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
-        if (AccountManagement.getUserLoggedInStatus() && AccountManagement.getLoggedInEmailUser() == TokenVar.AccessToken){
+        if (AccountManagement.getUserLoggedInStatus() && !AccountManagement.getLoggedInEmailUser().equals("")){
             Intent myIntent = new Intent(LoginActivity.this, MenuActivity.class);
             startActivity(myIntent);
             finish();
@@ -87,9 +87,13 @@ public class LoginActivity extends AppCompatActivity {
                     int responseStatusCode = response.code();
                     if (responseStatusCode == 200){
                         AccountManagement.setUserLoggedInStatus(true);
-                        AccountManagement.setPrefLoggedInUserEmail(TokenVar.AccessToken);
                         TokenVar.AccessToken = response.body().getAccessToken();
+                        AccountManagement.setPrefLoggedInUserEmail(TokenVar.AccessToken);
                         TokenVar.RefreshToken = response.body().getRefreshToken();
+                        AccountManagement.setUsername(username);
+                        if (MainApplication.getInstance().getEmergencyService() != null) {
+                            MainApplication.getInstance().getEmergencyService().createSocket();
+                        }
                         Intent myIntent1 = new Intent(LoginActivity.this, MenuActivity.class);
                         startActivity(myIntent1);
                         finish();

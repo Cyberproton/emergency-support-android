@@ -5,6 +5,8 @@ public class Profile {
     String phone;
     String address;
     String allergens;
+    String dateOfBirth;
+    String bloodType;
 
     public Profile(String name, String phone, String address, String allergens, String dateOfBirth, String bloodType) {
         this.name = name;
@@ -62,8 +64,4 @@ public class Profile {
     public void setBloodType(String bloodType) {
         this.bloodType = bloodType;
     }
-
-    String dateOfBirth;
-    String bloodType;
-
 }

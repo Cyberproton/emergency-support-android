@@ -24,6 +24,10 @@
     <string name="volunteer_victim_distance_content">Không rõ khoảng cách</string>
     <string name="volunteer_victim_name_label">Tên</string>
     <string name="volunteer_victim_name_content">Không rõ tên</string>
+    <string name="volunteer_victim_phone_label">SĐT</string>
+    <string name="volunteer_victim_phone_content">Không rõ số điện thoại</string>
+    <string name="volunteer_victim_address_label">Địa chỉ</string>
+    <string name="volunteer_victim_address_content">Không rõ địa chỉ</string>
     <string name="volunteer_victim_dateofbirth_label">Ngày sinh</string>
     <string name="volunteer_victim_dateofbirth_content">Không rõ ngày sinh</string>
     <string name="volunteer_victim_bloodtype_label">Nhóm máu</string>

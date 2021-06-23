@@ -160,7 +160,6 @@ public class EmergencyService extends Service {
     };
 
     private final LocalBinder serviceBinder = new LocalBinder();
-    private User you;
     private final Map<String, Case> cases = new HashMap<>();
 
     private Socket socket;
@@ -253,12 +252,15 @@ public class EmergencyService extends Service {
     }
 
     public void handleCaseUpdate(Case cs) {
-        if (asVictim && callingCase.getId().equals(cs.getId())) {
+        if (asVictim && callingCase != null && callingCase.getId().equals(cs.getId())) {
             this.callingCase = cs;
-        } else if (asVolunteer && acceptedCase.getId().equals(cs.getId())) {
+        } else if (asVolunteer && acceptedCase != null && acceptedCase.getId().equals(cs.getId())) {
             this.acceptedCase = cs;
         }
         cases.put(cs.getId(), cs);
+        for (Map.Entry<String, Case> stringCaseEntry : cases.entrySet()) {
+            Log.d("EmergencyService Case", stringCaseEntry.getKey() + "  " + stringCaseEntry.getValue().getId());
+        }
         if (notifyFromVolunteerActivity != null) {
             notifyFromVolunteerActivity.runOnUiThread(() -> notifyFromVolunteerActivity.updateCase(cs));
         }
@@ -274,7 +276,7 @@ public class EmergencyService extends Service {
     }
 
     public void startEmergency() {
-        if (callingCase != null || acceptedCase != null) {
+        if (callingCase != null || acceptedCase != null || socket == null) {
             return;
         }
         socket.emit("startEmergency");
@@ -331,10 +333,6 @@ public class EmergencyService extends Service {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public User getYou() {
-        return you;
     }
 
     public void registerView(NotifyFromVolunteerActivity view) {

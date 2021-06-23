@@ -23,11 +23,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import hcmut.team15.emergencysupport.MainApplication;
 import hcmut.team15.emergencysupport.R;
 import hcmut.team15.emergencysupport.emergency.EmergencyService;
 import hcmut.team15.emergencysupport.emergency.VolunteerActivity;
+import hcmut.team15.emergencysupport.login.AccountManagement;
 import hcmut.team15.emergencysupport.model.Case;
 import hcmut.team15.emergencysupport.model.Location;
 import hcmut.team15.emergencysupport.model.User;
@@ -78,34 +80,46 @@ public class CallActivity extends AppCompatActivity {
 
     public void onCasesUpdate(List<Case> cases) {
         calls.clear();
-        User you = MainApplication.you;
         for (Case cs : cases) {
             User victim = cs.getCaller();
-            if (you.getUsername().equals(victim.getUsername())) {
+            if (victim.getUsername().equals(AccountManagement.getUsername())) {
                 continue;
             }
-            String distance = "Không rõ khoảng cách";
-            if (you.getCurrentLocation() != null && victim.getCurrentLocation() != null) {
-                distance = String.format("%.1f", Location.distanceBetween(victim.getCurrentLocation(), you.getCurrentLocation()));
+            String distance = "? km";
+            Location currentLocation = null;
+            if (MainApplication.getInstance().getLocationService() != null) {
+                currentLocation = new Location(MainApplication.getInstance().getLocationService().getLastLocation());
+            }
+            if (currentLocation != null && victim.getCurrentLocation() != null) {
+                distance = String.format(Locale.getDefault(), "%.1f", Location.distanceBetween(victim.getCurrentLocation(), currentLocation));
                 distance += "km";
             }
-            calls.add(new Call(R.drawable.ic_baseline_person_24, victim.getUsername(), "", distance));
+            calls.add(new Call(R.drawable.ic_baseline_person_24, cs.getId(), victim.getUsername(), "", distance));
         }
-        calls.add(new Call(R.drawable.ic_baseline_person_24, "test", "test", "10km"));
         callAdapter.notifyDataSetChanged();
     }
 
     private static class Call {
         private int imageRes;
+        private String caseId;
         private String name;
         private String phone;
         private String distance;
 
-        public Call(int imageRes, String name, String phone, String distance) {
+        public Call(int imageRes, String caseId, String name, String phone, String distance) {
             this.imageRes = imageRes;
+            this.caseId = caseId;
             this.name = name;
             this.phone = phone;
             this.distance = distance;
+        }
+
+        public String getCaseId() {
+            return caseId;
+        }
+
+        public void setCaseId(String caseId) {
+            this.caseId = caseId;
         }
 
         public int getImageRes() {
@@ -167,6 +181,12 @@ public class CallActivity extends AppCompatActivity {
             holder.nameView.setText(call.getName());
             holder.phoneView.setText(call.getPhone());
             holder.distanceView.setText(call.getDistance());
+            holder.view.setOnClickListener(v -> {
+                Log.d(getClass().getSimpleName(), "Case View: " + call.getCaseId());
+                Intent intent = new Intent(v.getContext(), VolunteerActivity.class);
+                intent.putExtra("caseId", call.getCaseId());
+                v.getContext().startActivity(intent);
+            });
         }
 
         @Override
@@ -189,12 +209,6 @@ public class CallActivity extends AppCompatActivity {
             nameView = itemView.findViewById(R.id.call_person_name_label);
             phoneView = itemView.findViewById(R.id.call_person_phone_label);
             distanceView = itemView.findViewById(R.id.call_person_distance_label);
-
-            itemView.setOnClickListener(view -> {
-                Log.d(getClass().getSimpleName(), nameView.getText() + "clicked");
-                Intent intent = new Intent(view.getContext(), VolunteerActivity.class);
-                view.getContext().startActivity(intent);
-            });
         }
     }
 }

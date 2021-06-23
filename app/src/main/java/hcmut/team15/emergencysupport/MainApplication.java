@@ -63,7 +63,7 @@ public class MainApplication extends Application implements Application.Activity
                 .baseUrl(getString(R.string.server_url))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        you = new User(VICTIM_USERNAME, "", null);
+        //you = new User(VICTIM_USERNAME, "", null);
         createNotificationChannel();
         createButtonTriggerService();
         createLocationService();
@@ -251,6 +251,12 @@ public class MainApplication extends Application implements Application.Activity
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
 
+    }
+
+    public void onLocationPermissionRequested() {
+        if (locationService != null && !locationService.isRequestingLocationUpdates()) {
+            locationService.requestLocationUpdates();
+        }
     }
 
     public static MainApplication getInstance() {
