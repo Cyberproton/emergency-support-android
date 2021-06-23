@@ -39,6 +39,10 @@ public class Location {
         this.altitude = altitude;
     }
 
+    public boolean isNull() {
+        return latitude == 0 && longitude == 0;
+    }
+
     public static float distanceBetween(Location l1, Location l2) {
         float[] results = new float[2];
         android.location.Location.distanceBetween(l1.latitude, l1.longitude, l2.latitude, l2.longitude, results);

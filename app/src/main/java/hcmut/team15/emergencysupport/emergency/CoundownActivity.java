@@ -42,6 +42,7 @@ public class CoundownActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
                 Intent menu_intent = new Intent(CoundownActivity.this, NotifyFromVolunteerActivity.class);
                 startActivity(menu_intent);
+                finish();
             }
         }.start();
     }
@@ -51,6 +52,7 @@ public class CoundownActivity extends AppCompatActivity {
         countDownTimer.cancel();
         Intent menu_intent = new Intent(CoundownActivity.this, EmergencyActivity.class);
         startActivity(menu_intent);
+        finish();
     }
 
 

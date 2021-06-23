@@ -1,6 +1,7 @@
 package hcmut.team15.emergencysupport.emergency;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,7 +16,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,6 +23,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -33,22 +34,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import hcmut.team15.emergencysupport.MainApplication;
 import hcmut.team15.emergencysupport.R;
+import hcmut.team15.emergencysupport.location.LocationService;
 import hcmut.team15.emergencysupport.model.Case;
 import hcmut.team15.emergencysupport.model.Location;
 import hcmut.team15.emergencysupport.model.User;
 import hcmut.team15.emergencysupport.notificationCard.Notification;
 import hcmut.team15.emergencysupport.notificationCard.notificationAdapter;
-import hcmut.team15.emergencysupport.profile.ProfileActivity;
 
 public class NotifyFromVolunteerActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ArrayList<Notification> exampleList;
-    private Button btn_stop;
     private List<User> volunteers = new ArrayList<>();
     private Case cs;
+    private Location latestLocation;
+
     private EmergencyService emergencyService;
     private ServiceConnection emergencyServiceConnection = new ServiceConnection() {
         @Override
@@ -60,19 +63,34 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            if (emergencyService.isEmergencyStart()) {
-                emergencyService.stopEmergency();
-                emergencyService.unregisterView(NotifyFromVolunteerActivity.this);
-            }
+            emergencyService.stopEmergency();
+            emergencyService.unregisterView(NotifyFromVolunteerActivity.this);
             emergencyService = null;
+        }
+    };
+
+    private LocationService locationService;
+    private ServiceConnection locationServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            locationService = ((LocationService.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            locationService = null;
         }
     };
 
     //Google-map
     private SupportMapFragment supportMapFragment;
-    private double lat,lng;
+    private GoogleMap googleMap;
+    private double lat, lng;
     private String addressLine;
+    private Marker marker;
     private TextView userLocation;
+
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,8 +98,6 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_notify_from_volunteer);
 
         exampleList = new ArrayList<>();
-        exampleList.add(new Notification(R.drawable.ic_baseline_person_24, "Nguyễn Văn B", "012345678"));
-        exampleList.add(new Notification(R.drawable.ic_baseline_person_24, "Nguyễn Văn A", "012356781"));
 
         mRecyclerView = findViewById(R.id.recyclerView);
         mRecyclerView.setHasFixedSize(true);
@@ -89,6 +105,20 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         mAdapter = new notificationAdapter(exampleList);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Vui lòng xác nhận");
+        builder.setMessage("Bạn có chắc món dừng phát tín hiệu?");
+        builder.setPositiveButton("Dừng phát", (dialog, which) -> {
+            emergencyService.stopEmergency();
+            Intent intent = new Intent(NotifyFromVolunteerActivity.this, EmergencyActivity.class);
+            startActivity(intent);
+            finish();
+        });
+        builder.setNegativeButton("Tiếp tục", (dialog, which) -> {
+            dialog.cancel();
+        });
+        alertDialog = builder.create();
     }
 
     @Override
@@ -96,9 +126,16 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         Log.d(getClass().getSimpleName(), "Activity Started");
         super.onStart();
         bindService(new Intent(this, EmergencyService.class), emergencyServiceConnection, BIND_AUTO_CREATE);
+        android.location.Location loc = MainApplication.getInstance().getLocationService().getLastLocation();
+        if (loc == null) {
+            latestLocation = new Location(0, 0, 0);
+        } else {
+            latestLocation = new Location(loc);
+        }
+
         //Google-map
-        supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.userMap);
-        userLocation = findViewById(R.id.userLocation);
+        supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.user_map);
+        userLocation = findViewById(R.id.user_location_label);
         supportMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull @NotNull GoogleMap googleMap) {
@@ -107,7 +144,7 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
                             , Locale.getDefault());
 
                     List<Address> addresses = geocoder.getFromLocation(
-                            60, 60, 1
+                            latestLocation.getLatitude(), latestLocation.getLongitude(), 1
                     );
 
                     lat = addresses.get(0).getLatitude();
@@ -118,11 +155,16 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                userLocation.setText("Tôi đang đứng ở: " + addressLine);
+                if (latestLocation.isNull()) {
+                    userLocation.setText("Dịch vụ vị trí có thể đang gặp trục trặc");
+                } else {
+                    userLocation.setText("Tôi đang đứng ở: " + addressLine);
+                }
                 LatLng latLng = new LatLng(lat, lng);
-                MarkerOptions options = new MarkerOptions().position(latLng).title("I am there");
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
-                googleMap.addMarker(options);
+                MarkerOptions options = new MarkerOptions().position(latLng).title("Bạn ở đây");
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                marker = googleMap.addMarker(options);
+                NotifyFromVolunteerActivity.this.googleMap = googleMap;
             }
         });
     }
@@ -132,6 +174,11 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         Log.d(getClass().getSimpleName(), "Activity Stopped");
         unbindService(emergencyServiceConnection);
         super.onStop();
+    }
+
+    @Override
+    public void onBackPressed() {
+        showDialog();
     }
 
     public void insertItem(User volunteer, float distance) {
@@ -152,13 +199,21 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
     }
 
     public void stopSignal(View view) {
-        emergencyService.stopEmergency();
-        Intent menu_intent = new Intent(NotifyFromVolunteerActivity.this, EmergencyActivity.class);
-        startActivity(menu_intent);
+        showDialog();
     }
 
     public void updateCase(Case updated) {
         cs = updated;
+        User you = cs.getCaller();
+        Location loc = cs.getCaller().getCurrentLocation();
+        if (loc != null) {
+            latestLocation = loc;
+            if (marker != null) {
+                marker.remove();
+            }
+
+        }
+
         exampleList.clear();
         for (User volunteer : cs.getVolunteers()) {
             float distance = Location.distanceBetween(cs.getCaller().getCurrentLocation(), volunteer.getCurrentLocation());
@@ -167,16 +222,20 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         mAdapter.notifyDataSetChanged();
     }
 
+    public void updatePosition() {
+        LatLng latLng = new LatLng(latestLocation.getLatitude(), latestLocation.getLongitude());
+        MarkerOptions options = new MarkerOptions().position(latLng).title("Bạn ở đây");
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        marker = googleMap.addMarker(options);
+    }
+
     public void onCaseClosed() {
-        CharSequence message = "Cuộc trợ giúp đã kết thúc, cảm ơn bạn đã tham gia";
+        CharSequence message = "Tình nguyện viên đã rời khỏi cuộc trợ giúp";
         Snackbar sb = Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG);
         sb.show();
     }
 
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(NotifyFromVolunteerActivity.this, EmergencyActivity.class);
-        startActivity(intent);
-        super.onBackPressed();
+    private void showDialog() {
+        alertDialog.show();
     }
 }

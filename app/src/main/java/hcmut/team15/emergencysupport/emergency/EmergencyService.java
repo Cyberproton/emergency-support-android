@@ -8,6 +8,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -28,6 +29,7 @@ import hcmut.team15.emergencysupport.MainApplication;
 import hcmut.team15.emergencysupport.MenuActivity;
 import hcmut.team15.emergencysupport.R;
 import hcmut.team15.emergencysupport.call.CallActivity;
+import hcmut.team15.emergencysupport.login.AccountManagement;
 import hcmut.team15.emergencysupport.model.Case;
 import hcmut.team15.emergencysupport.model.Location;
 import hcmut.team15.emergencysupport.model.User;
@@ -188,17 +190,25 @@ public class EmergencyService extends Service {
     }
 
     public void createSocket(String serverUrl) {
+        if (AccountManagement.getUserAccessToken() == null) {
+            Log.w("EmergencyService", "Unable to create socket because user token is null");
+            return;
+        }
         try {
             if (socket != null) {
-                socket.disconnect();
+                return;
             }
             socket = IO.socket(serverUrl);
             handleSocket();
             socket.connect();
-            Log.d("EmergencyService", "Socket IO Client connected to server with url=" + getString(R.string.server_url_emulator));
+            Log.d("EmergencyService", "Socket IO Client connected to server with url=" + serverUrl);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+    }
+
+    public void createSocket() {
+        createSocket(getString(R.string.server_url));
     }
 
     @Nullable
@@ -276,7 +286,7 @@ public class EmergencyService extends Service {
 
     public void stopEmergency() {
         if (!asVictim || callingCase == null) {
-            throw new IllegalStateException("Case is already closed or you are a volunteer");
+            return;
         }
         try {
             JSONObject jsonCase = new JSONObject(new Gson().toJson(callingCase, Case.class));
@@ -294,7 +304,6 @@ public class EmergencyService extends Service {
         if (!asVolunteer || acceptedCase == null) {
             return;
         }
-        Log.d(getClass().getSimpleName(), "Stop volunteer");
         try {
             JSONObject jsonCase = new JSONObject(new Gson().toJson(acceptedCase, Case.class));
             socket.emit("stopVolunteer", jsonCase);
@@ -402,14 +411,7 @@ public class EmergencyService extends Service {
                 @SuppressWarnings("unchecked")
                 Map<String, List<String>> headers = (Map<String, List<String>>) args12[0];
                 // modify request headers
-                headers.put("x-access-token", Collections.singletonList(MainApplication.VICTIM_ACCESS));
-            });
-
-            transport.on(Transport.EVENT_RESPONSE_HEADERS, args1 -> {
-                @SuppressWarnings("unchecked")
-                Map<String, List<String>> headers = (Map<String, List<String>>) args1[0];
-                // access response headers
-                //String cookie = headers.get("Set-Cookie").get(0);
+                headers.put("x-access-token", Collections.singletonList(AccountManagement.getUserAccessToken()));
             });
         });
         socket.on("caseCreated", onCaseCreated);
