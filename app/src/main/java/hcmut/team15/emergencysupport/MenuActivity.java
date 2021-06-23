@@ -1,6 +1,7 @@
 package hcmut.team15.emergencysupport;
 
 import android.content.Intent;
+import android.media.session.MediaSession;
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -10,8 +11,8 @@ import hcmut.team15.emergencysupport.call.CallActivity;
 import hcmut.team15.emergencysupport.contact.ContactActivity;
 import hcmut.team15.emergencysupport.emergency.EmergencyActivity;
 import hcmut.team15.emergencysupport.login.AccountManagement;
-import hcmut.team15.emergencysupport.login.ForgotPasswordActivity;
 import hcmut.team15.emergencysupport.login.LoginActivity;
+import hcmut.team15.emergencysupport.login.TokenVar;
 import hcmut.team15.emergencysupport.profile.ProfileActivity;
 
 public class MenuActivity extends AppCompatActivity {
@@ -37,8 +38,10 @@ public class MenuActivity extends AppCompatActivity {
         });
         Button logout = findViewById(R.id.menu_logout_btn);
         logout.setOnClickListener(view ->{
-            AccountManagement.setUserLoggedInStatus(MenuActivity.this, false);
+            AccountManagement.clearLoggedInState();
+            TokenVar.AccessToken = "";
             Intent myIntent = new Intent(MenuActivity.this, LoginActivity.class);
+            myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(myIntent);
         });
 
@@ -46,6 +49,7 @@ public class MenuActivity extends AppCompatActivity {
         contact.setOnClickListener(view ->{
             Intent myIntent = new Intent(MenuActivity.this, ContactActivity.class);
             startActivity(myIntent);
+
         });
     }
 }
