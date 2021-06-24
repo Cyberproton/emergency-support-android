@@ -267,11 +267,17 @@ public class EmergencyService extends Service {
         if (callActivity != null) {
             callActivity.runOnUiThread(() -> callActivity.onCasesUpdate(new ArrayList<>(cases.values())));
         }
+        if (volunteerActivity != null) {
+            volunteerActivity.runOnUiThread(() -> volunteerActivity.onCaseUpdate());
+        }
     }
 
     public void handleCaseUpdate() {
         if (callActivity != null) {
             callActivity.runOnUiThread(() -> callActivity.onCasesUpdate(new ArrayList<>(cases.values())));
+        }
+        if (volunteerActivity != null) {
+            volunteerActivity.runOnUiThread(() -> volunteerActivity.onCaseUpdate());
         }
     }
 
@@ -444,9 +450,13 @@ public class EmergencyService extends Service {
     }
 
     private Notification getVictimCallNotification(float distance, Case cs) {
-        Intent intent = new Intent(this, EmergencyCaseActivity.class);
+        Intent intent = new Intent(this, VolunteerActivity.class);
         intent.putExtra("caseId", cs.getId());
-        PendingIntent viewCase = PendingIntent.getActivity(this, 5, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        try {
+            String jsonCase = new Gson().toJson(cs, Case.class);
+            intent.putExtra("case", jsonCase);
+        } catch (Exception ex) { }
+        PendingIntent viewCase = PendingIntent.getActivity(this, 5, intent, 0);
         return new NotificationCompat.Builder(this, "emergency-support-victim-call")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Có người cần trợ giúp gần bạn")

@@ -19,6 +19,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -85,16 +87,16 @@ public class CallActivity extends AppCompatActivity {
             if (victim.getUsername().equals(AccountManagement.getUsername())) {
                 continue;
             }
-            String distance = "? km";
+            String distance = "? m";
             Location currentLocation = null;
             if (MainApplication.getInstance().getLocationService() != null) {
                 currentLocation = new Location(MainApplication.getInstance().getLocationService().getLastLocation());
             }
             if (currentLocation != null && victim.getCurrentLocation() != null) {
                 distance = String.format(Locale.getDefault(), "%.1f", Location.distanceBetween(victim.getCurrentLocation(), currentLocation));
-                distance += "km";
+                distance += "m";
             }
-            calls.add(new Call(R.drawable.ic_baseline_person_24, cs.getId(), victim.getUsername(), "", distance));
+            calls.add(new Call(R.drawable.ic_baseline_person_24, cs.getId(), cs, victim.getUsername(), "", distance));
         }
         callAdapter.notifyDataSetChanged();
     }
@@ -102,13 +104,15 @@ public class CallActivity extends AppCompatActivity {
     private static class Call {
         private int imageRes;
         private String caseId;
+        private Case cs;
         private String name;
         private String phone;
         private String distance;
 
-        public Call(int imageRes, String caseId, String name, String phone, String distance) {
+        public Call(int imageRes, String caseId, Case cs, String name, String phone, String distance) {
             this.imageRes = imageRes;
             this.caseId = caseId;
+            this.cs = cs;
             this.name = name;
             this.phone = phone;
             this.distance = distance;
@@ -120,6 +124,14 @@ public class CallActivity extends AppCompatActivity {
 
         public void setCaseId(String caseId) {
             this.caseId = caseId;
+        }
+
+        public Case getCase() {
+            return cs;
+        }
+
+        public void setCase(Case cs) {
+            this.cs = cs;
         }
 
         public int getImageRes() {
@@ -185,6 +197,15 @@ public class CallActivity extends AppCompatActivity {
                 Log.d(getClass().getSimpleName(), "Case View: " + call.getCaseId());
                 Intent intent = new Intent(v.getContext(), VolunteerActivity.class);
                 intent.putExtra("caseId", call.getCaseId());
+                try {
+                    Case cs = call.getCase();
+                    String jsonCase = new Gson().toJson(cs, Case.class);
+                    intent.putExtra("case", jsonCase);
+                } catch (Exception ex) { }
+                try {
+                    String jsonCase = new Gson().toJson(call.getCase(), Case.class);
+                    intent.putExtra("case", jsonCase);
+                } catch (Exception ex) { }
                 v.getContext().startActivity(intent);
             });
         }

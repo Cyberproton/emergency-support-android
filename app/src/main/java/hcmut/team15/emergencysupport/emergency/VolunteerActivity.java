@@ -15,14 +15,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,6 +48,7 @@ public class VolunteerActivity extends AppCompatActivity {
             emergencyService = ((EmergencyService.LocalBinder) service).getService();
             emergencyService.registerView(VolunteerActivity.this);
             reload();
+            reloadMap();
         }
 
         @Override
@@ -62,16 +66,20 @@ public class VolunteerActivity extends AppCompatActivity {
     private TextView bloodType;
     private TextView anamnesis;
     private TextView allergens;
+    private TextView distance;
     private Button acceptVolunteerButton;
     private Button stopVolunteerButton;
 
     private Location latestLocation;
+    private Location victimLatestLocation;
     private SupportMapFragment supportMapFragment;
     private GoogleMap googleMap;
     private Geocoder geocoder;
     private double lat, lng;
     private String addressLine;
+    private String victimAddressLine;
     private Marker volunteerMarker;
+    private Marker victimMarker;
     private TextView volunteerLocation;
 
     @Override
@@ -91,6 +99,7 @@ public class VolunteerActivity extends AppCompatActivity {
         bloodType = findViewById(R.id.volunteer_victim_bloodtype_content);
         anamnesis = findViewById(R.id.volunteer_victim_anamnesis_content);
         allergens = findViewById(R.id.volunteer_victim_allergens_content);
+        distance = findViewById(R.id.volunteer_victim_distance_content);
         acceptVolunteerButton = findViewById(R.id.volunteer_accept_btn);
         stopVolunteerButton = findViewById(R.id.volunteer_stop_btn);
         supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.volunteer_map);
@@ -100,33 +109,31 @@ public class VolunteerActivity extends AppCompatActivity {
         } else {
             latestLocation = new Location(loc);
         }
+        String jsonCase = getIntent().getStringExtra("case");
+        if (jsonCase != null) {
+            try {
+                Case cs = new Gson().fromJson(jsonCase, Case.class);
+                User caller = cs.getCaller();
+                if (caller != null) {
+                    victimLatestLocation = caller.getCurrentLocation();
+                }
+            } catch (Exception ex) { }
+        }
+        geocoder = new Geocoder(this, Locale.getDefault());
         supportMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull @NotNull GoogleMap googleMap) {
-                try {
-                    geocoder = new Geocoder(VolunteerActivity.this
-                            , Locale.getDefault());
-
-                    List<Address> addresses = geocoder.getFromLocation(
-                            latestLocation.getLatitude(), latestLocation.getLongitude(), 1
-                    );
-
-                    lat = addresses.get(0).getLatitude();
-                    lng = addresses.get(0).getLongitude();
-                    addressLine = addresses.get(0).getAddressLine(0);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                LatLng latLng = new LatLng(lat, lng);
-                String markerTitle = addressLine != null ? addressLine : "Bạn ở đây";
-                MarkerOptions options = new MarkerOptions().position(latLng).title(markerTitle);
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-                volunteerMarker = googleMap.addMarker(options);
-                if (volunteerMarker != null) {
-                    volunteerMarker.showInfoWindow();
-                }
                 VolunteerActivity.this.googleMap = googleMap;
+                if (victimLatestLocation == null || latestLocation == null) {
+                    return;
+                }
+                prepareMarkers();
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                builder.include(new LatLng(latestLocation.getLatitude(), latestLocation.getLongitude()));
+                builder.include(new LatLng(victimLatestLocation.getLatitude(), victimLatestLocation.getLongitude()));
+                LatLngBounds bounds = builder.build();
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 30);
+                googleMap.animateCamera(cameraUpdate);
             }
         });
     }
@@ -137,75 +144,42 @@ public class VolunteerActivity extends AppCompatActivity {
         super.onStop();
     }
 
-    public void onCaseUpdate(Case cs) {
+    public void onCaseUpdate() {
         reload();
+        reloadMap();
     }
 
     private void reload() {
+        caseId = getIntent().getStringExtra("caseId");
+        if (caseId == null) {
+            return;
+        }
+        cs = emergencyService.getCase(caseId);
+
         Case acceptedCase = emergencyService.getAcceptedCase();
         Case callingCase = emergencyService.getCallingCase();
-        caseId = getIntent().getStringExtra("caseId");
 
         if (callingCase != null) {
             acceptVolunteerButton.setText("Bạn đang phát tín hiệu khẩn cấp");
             acceptVolunteerButton.setOnClickListener(view -> notifyWithSnackbar("Bạn đang phát tín hiệu khẩn cấp rồi"));
             stopVolunteerButton.setOnClickListener(view -> notifyWithSnackbar("Không thể kết thúc cuộc trợ giúp bạn chưa tham gia"));
-            return;
         } else if (acceptedCase != null) {
             if (acceptedCase.getId().equals(caseId)) {
                 acceptVolunteerButton.setText("Bạn đang tham gia cuộc trợ giúp này");
                 acceptVolunteerButton.setOnClickListener(view -> notifyWithSnackbar("Bạn đang tham gia cuộc trợ giúp này"));
-                stopVolunteerButton.setOnClickListener(view -> notifyWithSnackbar("Không thể kết thúc cuộc trợ giúp bạn chưa tham gia"));
+                stopVolunteerButton.setOnClickListener(v -> {
+                    showStopVolunteerDialog();
+                    reload();
+                });
             } else {
                 acceptVolunteerButton.setText("Bạn đang tham gia cuộc trợ giúp khác");
                 acceptVolunteerButton.setOnClickListener(view -> notifyWithSnackbar("Bạn đang tình nguyện cho một người khác rồi"));
                 stopVolunteerButton.setOnClickListener(view -> notifyWithSnackbar("Không thể kết thúc cuộc trợ giúp bạn chưa tham gia"));
             }
-            return;
         } else {
-            if (caseId != null) {
-                cs = emergencyService.getCase(caseId);
-                User victim = cs.getCaller();
-                Profile victimProfile = victim.getProfile();
-
-                if (victimProfile.getName() != null && !victimProfile.getName().isEmpty()) {
-                    name.setText(victimProfile.getName());
-                } else {
-                    name.setText(getString(R.string.volunteer_victim_name_content));
-                }
-
-                if (victimProfile.getAddress() != null && !victimProfile.getAddress().isEmpty()) {
-                    address.setText(victimProfile.getAddress());
-                } else {
-                    address.setText(getString(R.string.volunteer_victim_address_content));
-                }
-
-                if (victimProfile.getPhone() != null && !victimProfile.getPhone().isEmpty()) {
-                    phone.setText(victimProfile.getPhone());
-                } else {
-                    phone.setText(getString(R.string.volunteer_victim_phone_content));
-                }
-
-                if (victimProfile.getDateOfBirth() != null && !victimProfile.getDateOfBirth().isEmpty()) {
-                    dateOfBirth.setText(victimProfile.getDateOfBirth());
-                } else {
-                    dateOfBirth.setText(getString(R.string.volunteer_victim_dateofbirth_content));
-                }
-
-                if (victimProfile.getBloodType() != null && !victimProfile.getBloodType().isEmpty()) {
-                    bloodType.setText(victimProfile.getBloodType());
-                } else {
-                    bloodType.setText(getString(R.string.volunteer_victim_bloodtype_content));
-                }
-
-                if (victimProfile.getAllergens() != null && !victimProfile.getAllergens().isEmpty()) {
-                    allergens.setText(victimProfile.getAllergens());
-                } else {
-                    allergens.setText(getString(R.string.volunteer_victim_allergens_content));
-                }
-            }
             if (cs != null) {
                 stopVolunteerButton.setOnClickListener(view -> notifyWithSnackbar("Không thể kết thúc cuộc trợ giúp bạn chưa tham gia"));
+                acceptVolunteerButton.setText("Chấp nhận");
                 acceptVolunteerButton.setOnClickListener(view -> {
                     emergencyService.acceptVolunteer(cs.getId());
                     notifyWithSnackbar("Cảm ơn bạn đã tham gia");
@@ -220,7 +194,154 @@ public class VolunteerActivity extends AppCompatActivity {
                 acceptVolunteerButton.setOnClickListener(view -> notifyWithSnackbar("Không thể tham gia. Có thể cuộc trợ giúp đã kết thúc"));
                 stopVolunteerButton.setOnClickListener(view -> notifyWithSnackbar("Không thể kết thúc cuộc trợ giúp bạn chưa tham gia"));
             }
+        }
+
+        if (cs != null) {
+            User victim = cs.getCaller();
+            Profile victimProfile = victim.getProfile();
+
+            if (victimProfile.getName() != null && !victimProfile.getName().isEmpty()) {
+                name.setText(victimProfile.getName());
+            } else {
+                name.setText(getString(R.string.volunteer_victim_name_content));
+            }
+
+            if (victimProfile.getAddress() != null && !victimProfile.getAddress().isEmpty()) {
+                address.setText(victimProfile.getAddress());
+            } else {
+                address.setText(getString(R.string.volunteer_victim_address_content));
+            }
+
+            if (victimProfile.getPhone() != null && !victimProfile.getPhone().isEmpty()) {
+                phone.setText(victimProfile.getPhone());
+            } else {
+                phone.setText(getString(R.string.volunteer_victim_phone_content));
+            }
+
+            if (victimProfile.getDateOfBirth() != null && !victimProfile.getDateOfBirth().isEmpty()) {
+                dateOfBirth.setText(victimProfile.getDateOfBirth());
+            } else {
+                dateOfBirth.setText(getString(R.string.volunteer_victim_dateofbirth_content));
+            }
+
+            if (victimProfile.getBloodType() != null && !victimProfile.getBloodType().isEmpty()) {
+                bloodType.setText(victimProfile.getBloodType());
+            } else {
+                bloodType.setText(getString(R.string.volunteer_victim_bloodtype_content));
+            }
+
+            if (victimProfile.getAllergens() != null && !victimProfile.getAllergens().isEmpty()) {
+                allergens.setText(victimProfile.getAllergens());
+            } else {
+                allergens.setText(getString(R.string.volunteer_victim_allergens_content));
+            }
+        }
+    }
+
+    private void reloadMap() {
+        if (googleMap == null) {
             return;
+        }
+
+        boolean shouldAnimateCamera = false;
+
+        if (cs != null) {
+            Location newVictimLocation = cs.getCaller().getCurrentLocation();
+            Location newVolunteerLocation = MainApplication.getInstance().getLocationService().getCustomLastLocation();
+
+            if (latestLocation == null) {
+                shouldAnimateCamera = true;
+            } else {
+                if (newVolunteerLocation != null && Location.distanceBetween(latestLocation, newVolunteerLocation) > 1000) {
+                    shouldAnimateCamera = true;
+                }
+            }
+
+            if (victimLatestLocation == null) {
+                shouldAnimateCamera = true;
+            } else {
+                if (newVictimLocation != null && Location.distanceBetween(victimLatestLocation, newVictimLocation) > 1000) {
+                    shouldAnimateCamera = true;
+                }
+            }
+
+            if (newVolunteerLocation != null) {
+                latestLocation = newVolunteerLocation;
+            }
+            if (newVictimLocation != null) {
+                victimLatestLocation = newVictimLocation;
+            }
+            if (victimLatestLocation != null && latestLocation != null) {
+                String d = String.format(Locale.getDefault(), "%.1f", Location.distanceBetween(latestLocation, victimLatestLocation)) + "m";
+                distance.setText(d);
+            }
+        }
+
+        prepareMarkers();
+
+        if (shouldAnimateCamera) {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            if (latestLocation != null) {
+                builder.include(new LatLng(latestLocation.getLatitude(), latestLocation.getLongitude()));
+            }
+            if (victimLatestLocation != null) {
+                builder.include(new LatLng(victimLatestLocation.getLatitude(), victimLatestLocation.getLongitude()));
+            }
+            LatLngBounds bounds = builder.build();
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 30);
+            googleMap.animateCamera(cameraUpdate);
+        }
+    }
+
+    private void prepareMarkers() {
+        if (latestLocation != null) {
+            try {
+                List<Address> addresses = geocoder.getFromLocation(
+                        latestLocation.getLatitude(), latestLocation.getLongitude(), 1
+                );
+                addressLine = addresses.get(0).getAddressLine(0);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            if (volunteerMarker != null) {
+                volunteerMarker.remove();
+            }
+
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(new LatLng(latestLocation.getLatitude(), latestLocation.getLongitude()))
+                    .title("Bạn ở đây")
+                    .snippet(addressLine);
+
+            volunteerMarker = googleMap.addMarker(markerOptions);
+            if (volunteerMarker != null) {
+                volunteerMarker.showInfoWindow();
+            }
+        }
+
+        if (victimLatestLocation != null) {
+            try {
+                List<Address> addresses = geocoder.getFromLocation(
+                        victimLatestLocation.getLatitude(), victimLatestLocation.getLongitude(), 1
+                );
+                victimAddressLine = addresses.get(0).getAddressLine(0);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            if (victimMarker != null) {
+                victimMarker.remove();
+            }
+
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(new LatLng(victimLatestLocation.getLatitude(), victimLatestLocation.getLongitude()))
+                    .title("Họ ở đây")
+                    .snippet(victimAddressLine);
+
+            victimMarker = googleMap.addMarker(markerOptions);
+            if (victimMarker != null) {
+                victimMarker.showInfoWindow();
+            }
         }
     }
 

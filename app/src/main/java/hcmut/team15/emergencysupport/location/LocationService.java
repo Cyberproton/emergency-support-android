@@ -144,6 +144,13 @@ public class LocationService extends Service {
         return lastLocation;
     }
 
+    public hcmut.team15.emergencysupport.model.Location getCustomLastLocation() {
+        if (lastLocation == null) {
+            return null;
+        }
+        return new hcmut.team15.emergencysupport.model.Location(lastLocation);
+    }
+
     public boolean isRequestingLocationUpdates() {
         return isRequestingLocationUpdates;
     }
