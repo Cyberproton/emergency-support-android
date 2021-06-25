@@ -20,6 +20,8 @@
             />
 
         <Button
+            app:backgroundTint="@null"
+            android:background="@drawable/custom_menu_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/contact_add_btn"

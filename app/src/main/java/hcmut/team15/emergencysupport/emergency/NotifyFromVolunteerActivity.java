@@ -128,11 +128,13 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         super.onStart();
         bindService(new Intent(this, EmergencyService.class), emergencyServiceConnection, BIND_AUTO_CREATE);
         android.location.Location loc = MainApplication.getInstance().getLocationService().getLastLocation();
+
         if (loc == null) {
             latestLocation = new Location(0, 0, 0);
         } else {
             latestLocation = new Location(loc);
         }
+        Log.d("latest loc", latestLocation.getLatitude() + " " + latestLocation.getLongitude());
 
         //Google-map
         supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.volunteer_map);
@@ -140,31 +142,38 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         supportMapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull @NotNull GoogleMap googleMap) {
-                try {
-                    geocoder = new Geocoder(NotifyFromVolunteerActivity.this
-                            , Locale.getDefault());
+                googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                    @Override
+                    public void onMapLoaded() {
+                        try {
+                            geocoder = new Geocoder(NotifyFromVolunteerActivity.this
+                                    , Locale.getDefault());
 
-                    List<Address> addresses = geocoder.getFromLocation(
-                            latestLocation.getLatitude(), latestLocation.getLongitude(), 1
-                    );
+                            List<Address> addresses = geocoder.getFromLocation(
+                                    latestLocation.getLatitude(), latestLocation.getLongitude(), 1
+                            );
+                            Log.d("addresses", addresses.size() + "");
+                            lat = addresses.get(0).getLatitude();
+                            //lng = addresses.get(0).getLongitude();
+                            addressLine = addresses.get(0).getAddressLine(0);
+                            //addressLine = null;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
-                    lat = addresses.get(0).getLatitude();
-                    lng = addresses.get(0).getLongitude();
-                    addressLine = addresses.get(0).getAddressLine(0);
+                        Log.d("addressLine", "" + addressLine);
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                if (latestLocation.isNull() || addressLine == null) {
-                    userLocation.setText("Dịch vụ vị trí có thể đang gặp trục trặc");
-                } else {
-                    userLocation.setText("Tôi đang đứng ở: " + addressLine);
-                }
-                LatLng latLng = new LatLng(lat, lng);
-                MarkerOptions options = new MarkerOptions().position(latLng).title("Bạn ở đây");
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-                marker = googleMap.addMarker(options);
+                        if (latestLocation.isNull() || addressLine == null) {
+                            userLocation.setText("Dịch vụ vị trí có thể đang gặp trục trặc");
+                        } else {
+                            userLocation.setText("Tôi đang đứng ở: " + addressLine);
+                        }
+                        LatLng latLng = new LatLng(latestLocation.getLatitude(), latestLocation.getLongitude());
+                        MarkerOptions options = new MarkerOptions().position(latLng).title("Bạn ở đây");
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                        marker = googleMap.addMarker(options);
+                    }
+                });
                 NotifyFromVolunteerActivity.this.googleMap = googleMap;
             }
         });
@@ -226,7 +235,10 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
             List<Address> addresses = geocoder.getFromLocation(
                     latestLocation.getLatitude(), latestLocation.getLongitude(), 1
             );
+
+            //không có lỗi
             addressLine = addresses.get(0).getAddressLine(0);
+            Log.d("updatepos", addressLine);
         } catch (IOException ex) {
             ex.printStackTrace();
         }

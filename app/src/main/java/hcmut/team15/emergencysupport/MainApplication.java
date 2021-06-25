@@ -254,6 +254,8 @@ public class MainApplication extends Application implements Application.Activity
     }
 
     public void onLocationPermissionRequested() {
+        Log.d("MainApplication", "locationService: " +( locationService == null));
+        Log.d("MainApplication", "locationService: " +( locationService.isRequestingLocationUpdates()));
         if (locationService != null && !locationService.isRequestingLocationUpdates()) {
             locationService.requestLocationUpdates();
         }

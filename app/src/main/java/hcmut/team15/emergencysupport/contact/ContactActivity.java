@@ -2,6 +2,7 @@ package hcmut.team15.emergencysupport.contact;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 import hcmut.team15.emergencysupport.MainApplication;
 import hcmut.team15.emergencysupport.R;
+import hcmut.team15.emergencysupport.login.AccountManagement;
 import hcmut.team15.emergencysupport.model.Contact;
 import hcmut.team15.emergencysupport.model.ContactsResponse;
 import retrofit2.Call;
@@ -55,14 +57,14 @@ public class ContactActivity extends AppCompatActivity {
         contactSearchView = findViewById(R.id.contact_search);
 
 
-        /*
-        contacts.add(new Contact("a","","0123456789"));
-        contacts.add(new Contact("a","","0123456789"));
-        contacts.add(new Contact("a","","0123456789"));
-        contacts.add(new Contact("a","","0123456789"));
+
+        contacts.add(new Contact("Mặc định","","0"));
+        contacts.add(new Contact("*Police","","113"));
+        contacts.add(new Contact("*Ambulance","","115"));
+        contacts.add(new Contact("Của tôi","","0"));
         contactss.addAll(contacts);
 
-         */
+
         contactRecyclerView = findViewById(R.id.contacts_recycle_view);
         contactRecyclerView.setHasFixedSize(true);
         contactLayoutManager = new LinearLayoutManager(this);
@@ -70,7 +72,7 @@ public class ContactActivity extends AppCompatActivity {
         contactRecyclerView.setLayoutManager(contactLayoutManager);
         contactRecyclerView.setAdapter(contactAdapter);
 
-        contactInterface.getContacts(MainApplication.VICTIM_ACCESS).enqueue(new Callback<ContactsResponse>() {
+        contactInterface.getContacts(AccountManagement.getUserAccessToken()).enqueue(new Callback<ContactsResponse>() {
             @Override
             public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
                 ContactsResponse res = response.body();
@@ -84,7 +86,7 @@ public class ContactActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ContactsResponse> call, Throwable t) {
-                Log.d(getClass().getSimpleName(), t.getMessage());
+                Log.d("ContactActivity", t.getMessage());
             }
         });
 
@@ -154,7 +156,11 @@ public class ContactActivity extends AppCompatActivity {
 
             @Override
             public void onCallCLick(int position) {
-                Toast.makeText(getApplicationContext(), "Call "+ position, Toast.LENGTH_SHORT).show();
+                Contact contact = contacts.get(position);
+                String phone = "+" + contact.getPhone();
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+                startActivity(intent);
+
             }
 
             @Override
@@ -196,7 +202,7 @@ public class ContactActivity extends AppCompatActivity {
                 Map<String, String> body1 = new HashMap<>();
                 body1.put("name", name);
                 body1.put("phone", phone);
-                contactInterface.addContact(MainApplication.VICTIM_ACCESS, body1).enqueue(new Callback<ContactsResponse>() {
+                contactInterface.addContact(AccountManagement.getUserAccessToken(), body1).enqueue(new Callback<ContactsResponse>() {
                     @Override
                     public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
                         ContactsResponse res = response.body();
@@ -209,7 +215,7 @@ public class ContactActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<ContactsResponse> call, Throwable t) {
-                        Log.d(getClass().getSimpleName(), t.getMessage());
+                        Log.d("ContactActivity", t.getMessage());
                     }
                 });
 
@@ -219,7 +225,7 @@ public class ContactActivity extends AppCompatActivity {
                 Map<String, String> body = new HashMap<>();
                 body.put("name", name);
                 body.put("phone", phone);
-                contactInterface.updateContact(MainApplication.VICTIM_ACCESS, contact.get_id(), body).enqueue(new Callback<ContactsResponse>() {
+                contactInterface.updateContact(AccountManagement.getUserAccessToken(), contact.get_id(), body).enqueue(new Callback<ContactsResponse>() {
                     @Override
                     public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
                         ContactsResponse res = response.body();
@@ -236,7 +242,7 @@ public class ContactActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<ContactsResponse> call, Throwable t) {
-                        Log.d(getClass().getSimpleName(), t.getMessage());
+                        Log.d("ContactActivity", t.getMessage());
                     }
                 });
 
@@ -261,18 +267,19 @@ public class ContactActivity extends AppCompatActivity {
             deleteAlertDialog.setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    contactInterface.deleteContact(MainApplication.VICTIM_ACCESS, contact.get_id()).enqueue(new Callback<ContactsResponse>() {
+                    contactInterface.deleteContact(AccountManagement.getUserAccessToken(), contact.get_id()).enqueue(new Callback<ContactsResponse>() {
                         @Override
                         public void onResponse(Call<ContactsResponse> call, Response<ContactsResponse> response) {
+                            //không chạy
+                            Log.d("delete contact", "success!");
 
                         }
 
                         @Override
                         public void onFailure(Call<ContactsResponse> call, Throwable t) {
-                            Log.d(getClass().getSimpleName(), t.getMessage());
+                            Log.d("ContactActivity", t.getMessage());
                         }
                     });
-
                     contacts.remove(position);
                     contactAdapter.notifyItemRemoved(position);
                     contactss.remove(initialPos);

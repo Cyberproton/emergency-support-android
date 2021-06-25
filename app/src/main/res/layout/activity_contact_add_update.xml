@@ -20,9 +20,15 @@
             android:textColor="#FF0000"/>
 
         <EditText
+            android:background="@drawable/register_edit_text_background"
+            android:drawableStart="@drawable/ic_baseline_person_24"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nhập tên"
+            android:layout_height="46dp"
+            android:ems="10"
+            android:hint="Username"
+            tools:ignore="HardcodedText"
+            android:importantForAutofill="no"
+            android:padding="6dp"
             android:id="@+id/contact_input_name"/>
 
         <TextView
@@ -32,12 +38,19 @@
             android:textColor="#FF0000"/>
 
         <EditText
+            android:id="@+id/contact_input_phone"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nhập số điện thoại"
-            android:id="@+id/contact_input_phone"/>
+            android:layout_height="46dp"
+            android:background="@drawable/register_edit_text_background"
+            android:drawableStart="@drawable/ic_baseline_phone_24"
+            android:hint="@string/phone_num"
+            android:importantForAutofill="no"
+            android:inputType="text|phone"
+            android:padding="6dp" />
 
         <Button
+            app:backgroundTint="@null"
+            android:background="@drawable/custom_menu_button"
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
