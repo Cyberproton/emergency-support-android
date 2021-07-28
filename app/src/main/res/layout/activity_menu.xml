@@ -106,7 +106,9 @@
         android:id="@+id/menu_logout_btn"
         android:layout_width="120dp"
         android:layout_height="120dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="500dp"
+        android:layout_marginEnd="32dp"
         android:background="@drawable/custom_function_button"
         android:drawableTop="@drawable/ic_baseline_login_24"
         android:text="ĐĂNG XUẤT"
@@ -114,6 +116,23 @@
         android:textSize="12dp"
         app:backgroundTint="@null"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/menu_settings_btn"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/menu_settings_btn"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="500dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/custom_function_button"
+        android:drawableTop="@drawable/ic_baseline_settings_24"
+        android:text="CÀI ĐẶT"
+        android:textColor="@color/black"
+        android:textSize="12dp"
+        app:backgroundTint="@null"
+        app:layout_constraintEnd_toStartOf="@id/menu_logout_btn"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

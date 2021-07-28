@@ -17,6 +17,7 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,6 +45,7 @@ import hcmut.team15.emergencysupport.notificationCard.Notification;
 import hcmut.team15.emergencysupport.notificationCard.notificationAdapter;
 
 public class NotifyFromVolunteerActivity extends AppCompatActivity {
+    private static boolean started = false;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -94,9 +96,23 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
     private AlertDialog alertDialog;
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (!getIntent().getBooleanExtra("startFromButton", false) || !started) {
+            return;
+        }
+        stopEmergency();
+        Toast.makeText(this, "Nhận tín hiệu từ BUTTON, dừng phát tín hiệu", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notify_from_volunteer);
+
+        if (getIntent().getBooleanExtra("startFromButton", false) && started) {
+            return;
+        }
 
         exampleList = new ArrayList<>();
 
@@ -111,10 +127,7 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         builder.setTitle("Vui lòng xác nhận");
         builder.setMessage("Bạn có chắc món dừng phát tín hiệu?");
         builder.setPositiveButton("Dừng phát", (dialog, which) -> {
-            emergencyService.stopEmergency();
-            Intent intent = new Intent(NotifyFromVolunteerActivity.this, EmergencyActivity.class);
-            startActivity(intent);
-            finish();
+            stopEmergency();
         });
         builder.setNegativeButton("Tiếp tục", (dialog, which) -> {
             dialog.cancel();
@@ -126,6 +139,15 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
     protected void onStart() {
         Log.d(getClass().getSimpleName(), "Activity Started");
         super.onStart();
+
+        if (started) {
+            return;
+        }
+
+        if (getIntent().getBooleanExtra("startFromButton", false)) {
+            Toast.makeText(this, "Nhận tín hiệu từ BUTTON, bắt đầu phát tín hiệu", Toast.LENGTH_LONG).show();
+        }
+
         bindService(new Intent(this, EmergencyService.class), emergencyServiceConnection, BIND_AUTO_CREATE);
         android.location.Location loc = MainApplication.getInstance().getLocationService().getLastLocation();
         if (loc == null) {
@@ -168,12 +190,15 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
                 NotifyFromVolunteerActivity.this.googleMap = googleMap;
             }
         });
+
+        started = true;
     }
 
     @Override
     protected void onStop() {
         Log.d(getClass().getSimpleName(), "Activity Stopped");
         unbindService(emergencyServiceConnection);
+        started = false;
         super.onStop();
     }
 
@@ -250,7 +275,20 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         sb.show();
     }
 
+    private void stopEmergency() {
+        if (emergencyService != null) {
+            emergencyService.stopEmergency();
+        }
+        Intent intent = new Intent(NotifyFromVolunteerActivity.this, EmergencyActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     private void showDialog() {
         alertDialog.show();
+    }
+
+    public static boolean isStarted() {
+        return started;
     }
 }

@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
 
@@ -33,6 +34,7 @@ import hcmut.team15.emergencysupport.login.AccountManagement;
 import hcmut.team15.emergencysupport.model.Case;
 import hcmut.team15.emergencysupport.model.Location;
 import hcmut.team15.emergencysupport.model.User;
+import hcmut.team15.emergencysupport.setting.ActivitySettings;
 import io.socket.client.IO;
 import io.socket.client.Manager;
 import io.socket.client.Socket;
@@ -100,7 +102,7 @@ public class EmergencyService extends Service {
     };
 
     private final Emitter.Listener onCaseCreated = args -> {
-        Log.d(getClass().getSimpleName(), "Case Created");
+        Log.d(this.getClass().getSimpleName(), "Case Created");
         try {
             JSONObject cs = (JSONObject) args[0];
             Gson gson = new Gson();
@@ -111,7 +113,7 @@ public class EmergencyService extends Service {
     };
 
     private final Emitter.Listener onCaseClosed = args -> {
-        Log.d(getClass().getSimpleName(), "Case Closed");
+        Log.d(this.getClass().getSimpleName(), "Case Closed");
         try {
             JSONObject jsonCase = (JSONObject) args[0];
             Gson gson = new Gson();
@@ -120,6 +122,12 @@ public class EmergencyService extends Service {
                 this.acceptedCase = null;
             }
             this.cases.remove(cs.getId());
+            Integer notificationId = EmergencyService.this.notifications.get(cs.getId());
+            if (notificationId != null) {
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                notificationManager.cancel(notificationId);
+            }
+            EmergencyService.this.notifications.remove(cs.getId());
             handleCaseUpdate();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -128,7 +136,7 @@ public class EmergencyService extends Service {
 
     private final Emitter.Listener onVictimCall = args -> {
         try {
-            Log.d(this.getClass().getSimpleName(), "Victim call");
+            Log.d(EmergencyService.class.getSimpleName(), "Victim call");
 
             JSONObject victim = (JSONObject) args[0];
             JSONObject jsonCase = (JSONObject) args[1];
@@ -140,6 +148,7 @@ public class EmergencyService extends Service {
             boolean shouldNotify = !this.cases.containsKey(cs.getId());
             handleCaseUpdate(cs);
 
+            Log.d(EmergencyService.class.getSimpleName(), "Case received: " + jsonCase.toString());
             Log.d(getClass().getSimpleName(), "Should notify: " + shouldNotify);
 
             if (this.asVictim || this.asVolunteer) {
@@ -152,6 +161,7 @@ public class EmergencyService extends Service {
                 float dist = Location.distanceBetween(cs.getCaller().getCurrentLocation(), you.getCurrentLocation());
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
                 notificationManager.notify(victimCallNotificationId, getVictimCallNotification(dist, cs));
+                EmergencyService.this.notifications.put(cs.getId(), victimCallNotificationId);
                 victimCallNotificationId++;
             }
         } catch (Exception ex) {
@@ -161,6 +171,7 @@ public class EmergencyService extends Service {
 
     private final LocalBinder serviceBinder = new LocalBinder();
     private final Map<String, Case> cases = new HashMap<>();
+    private final Map<String, Integer> notifications = new HashMap<>();
 
     private Socket socket;
     private boolean isEmergencyStart;
@@ -178,6 +189,8 @@ public class EmergencyService extends Service {
     private CallActivity callActivity;
     private VolunteerActivity volunteerActivity;
 
+    private int currentLedSignal = 0;
+
     @Override
     public void onCreate() {
         Log.d("EmergencyService", "Service created");
@@ -185,6 +198,29 @@ public class EmergencyService extends Service {
         createSocket(getString(R.string.server_url));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForeground(2, getForegroundNotification());
+        }
+    }
+
+    public void createSocket(String serverUrl, boolean force) {
+        if (AccountManagement.getUserAccessToken() == null) {
+            Log.w("EmergencyService", "Unable to create socket because user token is null");
+            return;
+        }
+        try {
+            if (socket != null) {
+                if (force) {
+                    socket.disconnect();
+                    socket = null;
+                } else {
+                    return;
+                }
+            }
+            socket = IO.socket(serverUrl);
+            handleSocket();
+            socket.connect();
+            Log.d("EmergencyService", "Socket IO Client connected to server with url=" + serverUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -201,13 +237,28 @@ public class EmergencyService extends Service {
             handleSocket();
             socket.connect();
             Log.d("EmergencyService", "Socket IO Client connected to server with url=" + serverUrl);
-        } catch (URISyntaxException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void createSocket() {
         createSocket(getString(R.string.server_url));
+    }
+
+    public void disconnectSocket() {
+        stopEmergency();
+        stopVolunteer();
+
+        if (socket == null) {
+            return;
+        }
+        try {
+            socket.disconnect();
+            Log.d("EmergencyService", "Socket IO Client disconnected from server");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Nullable
@@ -254,6 +305,11 @@ public class EmergencyService extends Service {
     public void handleCaseUpdate(Case cs) {
         if (asVictim && callingCase != null && callingCase.getId().equals(cs.getId())) {
             this.callingCase = cs;
+            if (callingCase.getVolunteers().isEmpty() && currentLedSignal != 1) {
+                sendLedSignal(1);
+            } else if (!callingCase.getVolunteers().isEmpty() && currentLedSignal != 2) {
+                sendLedSignal(2);
+            }
         } else if (asVolunteer && acceptedCase != null && acceptedCase.getId().equals(cs.getId())) {
             this.acceptedCase = cs;
         }
@@ -282,18 +338,33 @@ public class EmergencyService extends Service {
     }
 
     public void startEmergency() {
-        if (callingCase != null || acceptedCase != null || socket == null) {
+        if (callingCase != null || acceptedCase != null) {
+            if (callingCase != null) {
+                Log.w(EmergencyService.class.getSimpleName(), "Calling case is not null");
+            }
+            if (acceptedCase != null) {
+                Log.w(EmergencyService.class.getSimpleName(), "Accepted case is not null");
+            }
+            return;
+        }
+        if (socket == null) {
+            Log.w("EmergencyService", "Unable to start emergency, socket is null");
             return;
         }
         socket.emit("startEmergency");
-
+        Log.i("EmergencyService", "Emergency Started");
         asVictim = true;
         asVolunteer = false;
         isEmergencyStart = true;
+        sendLedSignal(1);
     }
 
     public void stopEmergency() {
         if (!asVictim || callingCase == null) {
+            return;
+        }
+        if (socket == null) {
+            Log.w("EmergencyService", "Unable to stop emergency, socket is null");
             return;
         }
         try {
@@ -303,6 +374,8 @@ public class EmergencyService extends Service {
             asVictim = false;
             asVolunteer = false;
             isEmergencyStart = false;
+            sendLedSignal(0);
+            Log.i("EmergencyService", "Emergency Stopped");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -310,6 +383,10 @@ public class EmergencyService extends Service {
 
     public void stopVolunteer() {
         if (!asVolunteer || acceptedCase == null) {
+            return;
+        }
+        if (socket == null) {
+            Log.w("EmergencyService", "Unable to stop volunteer, socket is null");
             return;
         }
         try {
@@ -327,7 +404,10 @@ public class EmergencyService extends Service {
         if (asVolunteer || acceptedCase != null) {
             return;
         }
-        Log.d(getClass().getSimpleName(), "Accept Volunteer");
+        if (socket == null) {
+            Log.w("EmergencyService", "Unable to accept volunteer, socket is null");
+            return;
+        }
         try {
             Case cs = getCase(caseId);
             JSONObject jsonCase;
@@ -386,6 +466,10 @@ public class EmergencyService extends Service {
         return asVolunteer;
     }
 
+    public Map<String, Case> getCases() {
+        return cases;
+    }
+
     public Case getCase(String caseId) {
         return cases.get(caseId);
     }
@@ -439,7 +523,7 @@ public class EmergencyService extends Service {
 
         return new NotificationCompat.Builder(this, "emergency-support-emergency")
                 .setOngoing(true)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_baseline_settings_input_antenna_24)
                 .setContentTitle("Dịch vụ khẩn cấp đang chạy")
                 .setContentText("Dịch vụ đang chạy ngầm")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -451,14 +535,15 @@ public class EmergencyService extends Service {
 
     private Notification getVictimCallNotification(float distance, Case cs) {
         Intent intent = new Intent(this, VolunteerActivity.class);
+        Log.d(EmergencyService.class.getSimpleName(), "Extra: " + cs.getId());
         intent.putExtra("caseId", cs.getId());
         try {
             String jsonCase = new Gson().toJson(cs, Case.class);
             intent.putExtra("case", jsonCase);
         } catch (Exception ex) { }
-        PendingIntent viewCase = PendingIntent.getActivity(this, 5, intent, 0);
+        PendingIntent viewCase = PendingIntent.getActivity(this, 5, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         return new NotificationCompat.Builder(this, "emergency-support-victim-call")
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_baseline_warning_24)
                 .setContentTitle("Có người cần trợ giúp gần bạn")
                 .setContentText("Cách bạn " + String.format("%.1f", distance) + " m")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -468,10 +553,23 @@ public class EmergencyService extends Service {
 
     private Notification getVolunteerAcceptNotification(String name, double distance) {
         return new NotificationCompat.Builder(this, "emergency-support-volunteer-accept")
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_baseline_directions_run_24)
                 .setContentTitle("Tình nguyện viên đang đến")
                 .setContentText(name + " đang đến. Cách bạn " + String.format("%.1f", distance) + " m")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build();
+    }
+
+    private void sendLedSignal(int data) {
+        if (!ActivitySettings.isListenToButtonTrigger()) {
+            return;
+        }
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("id", "1");
+        jsonObject.addProperty("name", "LED");
+        jsonObject.addProperty("data", "" + data);
+        jsonObject.addProperty("unit", "");
+        currentLedSignal = data;
+        MainApplication.getInstance().getMqttService().sendLedData(jsonObject.toString());
     }
 }

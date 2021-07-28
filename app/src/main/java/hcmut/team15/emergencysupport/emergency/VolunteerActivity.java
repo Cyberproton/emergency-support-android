@@ -7,6 +7,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import hcmut.team15.emergencysupport.MainApplication;
 import hcmut.team15.emergencysupport.R;
@@ -127,13 +129,15 @@ public class VolunteerActivity extends AppCompatActivity {
                 if (victimLatestLocation == null || latestLocation == null) {
                     return;
                 }
-                prepareMarkers();
-                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                builder.include(new LatLng(latestLocation.getLatitude(), latestLocation.getLongitude()));
-                builder.include(new LatLng(victimLatestLocation.getLatitude(), victimLatestLocation.getLongitude()));
-                LatLngBounds bounds = builder.build();
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 30);
-                googleMap.animateCamera(cameraUpdate);
+                googleMap.setOnMapLoadedCallback(() -> {
+                    prepareMarkers();
+                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                    builder.include(new LatLng(latestLocation.getLatitude(), latestLocation.getLongitude()));
+                    builder.include(new LatLng(victimLatestLocation.getLatitude(), victimLatestLocation.getLongitude()));
+                    LatLngBounds bounds = builder.build();
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 30);
+                    googleMap.animateCamera(cameraUpdate);
+                });
             }
         });
     }
@@ -154,7 +158,15 @@ public class VolunteerActivity extends AppCompatActivity {
         if (caseId == null) {
             return;
         }
+        Log.w(getClass().getSimpleName(), "Case id: " + caseId);
+        for (Map.Entry<String, Case> entry : emergencyService.getCases().entrySet()) {
+            Log.i(getClass().getSimpleName(), "Available: " + entry.getKey() + " " + entry.getValue().getId());
+        }
         cs = emergencyService.getCase(caseId);
+
+        if (cs == null) {
+            Log.w(getClass().getSimpleName(), "Case is null");
+        }
 
         Case acceptedCase = emergencyService.getAcceptedCase();
         Case callingCase = emergencyService.getCallingCase();

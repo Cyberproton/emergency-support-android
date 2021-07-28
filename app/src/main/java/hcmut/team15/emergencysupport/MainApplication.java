@@ -9,29 +9,35 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.JsonReader;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import hcmut.team15.emergencysupport.emergency.EmergencyService;
+import hcmut.team15.emergencysupport.emergency.NotifyFromVolunteerActivity;
 import hcmut.team15.emergencysupport.hardware.MqttService;
 import hcmut.team15.emergencysupport.emergency.EmergencyActivity;
 import hcmut.team15.emergencysupport.location.LocationService;
 import hcmut.team15.emergencysupport.model.User;
+import hcmut.team15.emergencysupport.setting.ActivitySettings;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -65,8 +71,9 @@ public class MainApplication extends Application implements Application.Activity
                 .build();
         //you = new User(VICTIM_USERNAME, "", null);
         createNotificationChannel();
-        createButtonTriggerService();
         createLocationService();
+        createButtonTriggerService();
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
     public void createRetrofit(String serverUrl) {
@@ -77,7 +84,7 @@ public class MainApplication extends Application implements Application.Activity
     }
 
     private void createButtonTriggerService() {
-        mqttService = new MqttService(this, "CSE_BBC/feeds/bk-iot-soil");
+        mqttService = new MqttService(this, "cyberproton/feeds/button", "cyberproton/feeds/led" );
         mqttService.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
@@ -94,24 +101,26 @@ public class MainApplication extends Application implements Application.Activity
                 String m = message.toString();
                 Log.d("MqttService", "Receive message from topic=" + topic + " and message=" + message.toString());
                 JsonObject json = new JsonParser().parse(m).getAsJsonObject();
-                Log.d("MqttService", json.get("id").getAsString());
-                Log.d("MqttService", json.get("name").getAsString());
-                Log.d("MqttService", json.get("data").getAsString());
-                Log.d("MqttService", json.get("unit").getAsString());
-                if (m.equals("1")) {
-                    Toast.makeText(
-                            getBaseContext(),
-                            "Message from Adafruit: topic=" + topic + ", message=" + message.toString() + ", Button pressed",
-                            Toast.LENGTH_LONG
-                    ).show();
-                    /*
-                    if (!isEmergencyActivityVisible && !isEmergencyActivityResumed) {
-                        Intent intent = new Intent(getBaseContext(), EmergencyActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra("startSignal", true);
+                String id = json.get("id").getAsString();
+                String name = json.get("name").getAsString();
+                String data = json.get("data").getAsString();
+                String unit = json.get("unit").getAsString();
+
+                Log.d("MqttService", "id: " + json.get("id").getAsString());
+                Log.d("MqttService", "name: " + json.get("name").getAsString());
+                Log.d("MqttService", "data: " + json.get("data").getAsString());
+                Log.d("MqttService", "unit: " + json.get("unit").getAsString());
+
+                if (name.equals("BUTTON") && data.equals("1")) {
+                    Log.d(MainApplication.class.getSimpleName(), "Listening: " + ActivitySettings.isListenToButtonTrigger());
+                    if (emergencyService != null && ActivitySettings.isListenToButtonTrigger()) {
+                        Intent intent = new Intent(MainApplication.this, NotifyFromVolunteerActivity.class);
+                        //emergencyService.startEmergency();
+                        intent.putExtra("startFromButton", true);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         startActivity(intent);
                     }
-                     */
                 }
             }
 
@@ -277,5 +286,9 @@ public class MainApplication extends Application implements Application.Activity
 
     public EmergencyService getEmergencyService() {
         return emergencyService;
+    }
+
+    public SharedPreferences getSharedPreferences(){
+        return PreferenceManager.getDefaultSharedPreferences(this);
     }
 }

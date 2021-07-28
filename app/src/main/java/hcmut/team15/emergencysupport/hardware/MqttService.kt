@@ -5,12 +5,13 @@ import android.util.Log
 import hcmut.team15.emergencysupport.R
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
+import java.util.*
 
-class MqttService(context: Context, val subscriptionTopic: String) {
+class MqttService(context: Context, val buttonFeed: String, val ledFeed: String) {
     val serverUri = "tcp://io.adafruit.com:1883"
-    val username = "CSE_BBC"
-    val password = context.getString(R.string.adafruit_bbc_password)
-    val clientId = "9999"
+    val username = context.getString(R.string.my_adafruit_username)
+    val password = context.getString(R.string.my_adafruit_password)
+    val clientId = UUID.randomUUID().toString()
     val mqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
 
     init {
@@ -31,7 +32,6 @@ class MqttService(context: Context, val subscriptionTopic: String) {
                 Log.w("mqtt-connection", "Disconnected from server")
             }
         })
-
         connect()
     }
 
@@ -55,12 +55,12 @@ class MqttService(context: Context, val subscriptionTopic: String) {
                     disconnectedBufferOptions.isPersistBuffer = false
                     disconnectedBufferOptions.isDeleteOldestMessages = false
                     mqttAndroidClient.setBufferOpts(disconnectedBufferOptions)
-
+                    Log.i("mqtt-connection", "Connect to server with uri $serverUri")
                     subscribeToTopic()
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                    Log.w("mqtt-connection", "Could not connect to server with uri: $serverUri, message: ${exception.toString()}")
+                    Log.i("mqtt-connection", "Could not connect to server with uri: $serverUri, message: ${exception.toString()}")
                 }
             })
         } catch (ex: MqttException) {
@@ -69,19 +69,43 @@ class MqttService(context: Context, val subscriptionTopic: String) {
     }
 
     private fun subscribeToTopic() {
+        val feeds = arrayOf(buttonFeed, ledFeed)
         try {
-            mqttAndroidClient.subscribe(subscriptionTopic, 0, null, object : IMqttActionListener {
+            mqttAndroidClient.subscribe(feeds, IntArray(2), null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    Log.w("mqtt-topic-subscription", "Subscribed to topic: $subscriptionTopic")
+                    Log.w("mqtt-topic-subscription", "Subscribed to topic: ${feeds.contentToString()}")
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                     Log.w(
                         "mqtt-topic-subscription",
-                        "Could not subscribe to topic: $subscriptionTopic"
+                        "Could not subscribe to topic: ${feeds.contentToString()}"
                     )
                 }
+            })
+        } catch (ex: MqttException) {
+            ex.printStackTrace()
+        }
+    }
 
+    fun subscribe(topic: String, listener: IMqttMessageListener) {
+        try {
+            mqttAndroidClient.subscribe(topic, 0, listener)
+        } catch (ex: MqttException) {
+            ex.printStackTrace()
+        }
+    }
+
+    fun unsubscribe(topic: String) {
+        try {
+            mqttAndroidClient.unsubscribe(topic, null, object: IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken?) {
+                    Log.d("MqttService", "Unsubscribe to topic: $topic")
+                }
+
+                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    Log.d("MqttService", "Could not unsubscribe to topic: $topic")
+                }
             })
         } catch (ex: MqttException) {
             ex.printStackTrace()
@@ -101,5 +125,9 @@ class MqttService(context: Context, val subscriptionTopic: String) {
         } catch (ex: MqttException) {
             Log.d("MqttService", "Could not publish data to topic=$topic, data=$data")
         }
+    }
+
+    fun sendLedData(data: String) {
+        sendData(ledFeed, data)
     }
 }

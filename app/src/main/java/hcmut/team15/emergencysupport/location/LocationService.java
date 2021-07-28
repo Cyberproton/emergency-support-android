@@ -158,7 +158,7 @@ public class LocationService extends Service {
     public Notification getNotification() {
         return new NotificationCompat.Builder(this, "emergency-support-location")
                 .setOngoing(true)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_baseline_location_on_24)
                 .setContentTitle("Dịch vụ vị trí đang chạy")
                 .setContentText("Ứng dụng đang lưu trữ vị trí của bạn")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

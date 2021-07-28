@@ -28,7 +28,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyANPkkThf1aanUc6CMz9SVwb-9mKGbnh2g" />
 
-        <activity android:name=".emergency.NotifyFromVolunteerActivity" />
+        <activity android:name=".emergency.NotifyFromVolunteerActivity" android:launchMode="singleTop"/>
         <activity android:name=".emergency.CoundownActivity" />
         <activity android:name=".MenuActivity" />
         <activity android:name=".register.RegisterActivity1" />
@@ -40,6 +40,7 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".login.ForgotPasswordActivity" />
         <activity android:name=".profile.ProfileActivity" />
+        <activity android:name=".setting.ActivitySettings" />
         <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
