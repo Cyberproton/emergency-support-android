@@ -119,7 +119,8 @@ public class LocationService extends Service {
     }
 
     public void requestLocationUpdates() {
-        startService(new Intent(MainApplication.getInstance(), getClass()));
+        Log.d("LocationService", "request location update");
+        //startService(new Intent(MainApplication.getInstance(), getClass()));
         try {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
             isRequestingLocationUpdates = true;

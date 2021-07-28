@@ -138,10 +138,13 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 contactViewHolder.contactName.setText(currentItem.getName());
                 contactViewHolder.contactPhone.setText(currentItem.getPhone());
+                /*
                 Log.d("phone" , ""  + currentItem.getPhone());
                 Log.d("phone" , ""  + currentItem.getName());
                 Log.d("phone" , ""  + currentItem.getPhone().charAt(0));
                 String phone = currentItem.getPhone();
+
+                 */
                 boolean isExpanded = currentItem.isExpanded();
 
                 contactViewHolder.contactExpandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
