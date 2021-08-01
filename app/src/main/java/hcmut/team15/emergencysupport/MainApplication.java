@@ -1,4 +1,4 @@
-    package hcmut.team15.emergencysupport;
+package hcmut.team15.emergencysupport;
 
 import android.app.Activity;
 import android.app.Application;
@@ -15,7 +15,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.util.JsonReader;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -27,15 +26,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import hcmut.team15.emergencysupport.emergency.CoundownActivity;
+import hcmut.team15.emergencysupport.emergency.EmergencyActivity;
 import hcmut.team15.emergencysupport.emergency.EmergencyService;
 import hcmut.team15.emergencysupport.emergency.NotifyFromVolunteerActivity;
 import hcmut.team15.emergencysupport.hardware.MqttService;
-import hcmut.team15.emergencysupport.emergency.EmergencyActivity;
 import hcmut.team15.emergencysupport.location.LocationService;
+import hcmut.team15.emergencysupport.login.AccountManagement;
 import hcmut.team15.emergencysupport.model.User;
 import hcmut.team15.emergencysupport.setting.ActivitySettings;
 import retrofit2.Retrofit;
@@ -52,6 +52,9 @@ public class MainApplication extends Application implements Application.Activity
     private MqttService mqttService;
     private LocationService locationService;
     private EmergencyService emergencyService;
+
+    private NotifyFromVolunteerActivity notifyFromVolunteerActivity;
+    private CoundownActivity coundownActivity;
 
     // For testing
     public static User you;
@@ -112,14 +115,21 @@ public class MainApplication extends Application implements Application.Activity
                 Log.d("MqttService", "unit: " + json.get("unit").getAsString());
 
                 if (name.equals("BUTTON") && data.equals("1")) {
-                    Log.d(MainApplication.class.getSimpleName(), "Listening: " + ActivitySettings.isListenToButtonTrigger());
-                    if (emergencyService != null && ActivitySettings.isListenToButtonTrigger()) {
-                        Intent intent = new Intent(MainApplication.this, NotifyFromVolunteerActivity.class);
-                        //emergencyService.startEmergency();
-                        intent.putExtra("startFromButton", true);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        startActivity(intent);
+                    if (emergencyService != null && ActivitySettings.isListenToButtonTrigger() && AccountManagement.getUserLoggedInStatus()) {
+                        if (coundownActivity != null) {
+                            coundownActivity.cancel();
+                        }
+                        if (notifyFromVolunteerActivity == null) {
+                            Log.d(MainApplication.class.getSimpleName(), "Start from button");
+                            Intent intent = new Intent(MainApplication.this, NotifyFromVolunteerActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            intent.putExtra("startFromButton", true);
+                            startActivity(intent);
+                        } else {
+                            Log.d(MainApplication.class.getSimpleName(), "Stop from button");
+                            notifyFromVolunteerActivity.stopEmergency();
+                            Toast.makeText(MainApplication.this, "Nhận tín hiệu từ BUTTON, dừng phát tín hiệu", Toast.LENGTH_LONG).show();
+                        }
                     }
                 }
             }
@@ -292,5 +302,25 @@ public class MainApplication extends Application implements Application.Activity
 
     public SharedPreferences getSharedPreferences(){
         return PreferenceManager.getDefaultSharedPreferences(this);
+    }
+
+    public void registerNotifyFromVolunteerActivity(NotifyFromVolunteerActivity activity) {
+        notifyFromVolunteerActivity = activity;
+    }
+
+    public void unregisterNotifyFromVolunteerActivity() {
+        notifyFromVolunteerActivity = null;
+    }
+
+    public boolean isNotifyFromVolunteerActivityRegistered() {
+        return notifyFromVolunteerActivity != null;
+    }
+
+    public void registerCountdownActivity(CoundownActivity coundownActivity) {
+        this.coundownActivity = coundownActivity;
+    }
+
+    public void unregisterCountdownActivity() {
+        this.coundownActivity = null;
     }
 }

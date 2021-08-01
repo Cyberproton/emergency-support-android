@@ -7,66 +7,71 @@
     tools:context=".emergency.EmergencyActivity">
 
 
-    <Button
-
-        android:id="@+id/signal_button"
+    <TextView
+        android:id="@+id/menu_title4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="28dp"
-        android:text="Phát tín hiệu"
-        app:layout_constraintEnd_toStartOf="@+id/stop_button"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginTop="64dp"
+        android:fontFamily="@font/comfortaa_light"
+        android:text="PHÁT TÍN HIỆU"
+        android:textColor="@color/black"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/menu_title5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:fontFamily="@font/comfortaa_light"
+        android:text="KHẨN CẤP"
+        android:textColor="@color/black"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/stop_button"
-        android:layout_width="126dp"
-        android:layout_height="54dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="60dp"
-        android:text="Dừng phát"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:onClick="sendSOS"
         android:id="@+id/btn_emergency"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_marginBottom="260dp"
+        android:layout_marginTop="100dp"
         android:background="@drawable/custom_sos_button"
         android:backgroundTint="@null"
+        android:onClick="sendSOS"
         android:text="SOS"
         android:textSize="60dp"
         app:backgroundTint="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/menu_title5" />
 
     <Button
         android:id="@+id/btn_menu"
-        android:layout_width="368dp"
-        android:layout_height="41dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="32dp"
         android:background="@drawable/custom_menu_button"
         android:text="Menu"
         android:textSize="15dp"
-        app:backgroundTint="@null"
+        app:backgroundTint="#2C2828"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.559"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:textSize="15dp"
-        android:textColor="@color/black"
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
         android:text="Nhấn nút để gửi tín hiệu khẩn cấp"
+        android:textColor="@color/black"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"

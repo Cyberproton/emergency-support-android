@@ -59,8 +59,8 @@ public class ContactActivity extends AppCompatActivity {
 
 
         contacts.add(new Contact("Mặc định","","0"));
-        contacts.add(new Contact("*Police","","113"));
-        contacts.add(new Contact("*Ambulance","","115"));
+        contacts.add(new Contact("* Police","","113"));
+        contacts.add(new Contact("* Ambulance","","115"));
         contacts.add(new Contact("Của tôi","","0"));
         contactss.addAll(contacts);
 
@@ -134,7 +134,8 @@ public class ContactActivity extends AppCompatActivity {
         else{
             for(Contact contact : contactss){
                 if(!contact.getPhone().equals("0")){
-                    if(contact.getName().toLowerCase().contains(query.toLowerCase())){
+                    if(contact.getName().toLowerCase().contains(query.toLowerCase()) ||
+                       contact.getPhone().toLowerCase().contains(query.toLowerCase())) {
                         contacts.add(contact);
                     }
                 }
@@ -147,11 +148,20 @@ public class ContactActivity extends AppCompatActivity {
         contactAdapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
             @Override
             public void onItemCLick(int position) {
+                List<Integer> positions = new ArrayList<>();
+                for (int i = 0; i < contacts.size(); i++) {
+                    Contact contact = contacts.get(i);
+                    if (i != position && contact.isExpanded()) {
+                        contact.setExpanded(false);
+                        positions.add(i);
+                    }
+                }
                 Contact contact = contacts.get(position);
                 contact.setExpanded(!contact.isExpanded());
-
                 contactAdapter.notifyItemChanged(position);
-
+                for (int i : positions) {
+                    contactAdapter.notifyItemChanged(i);
+                }
             }
 
             @Override
@@ -171,7 +181,6 @@ public class ContactActivity extends AppCompatActivity {
             @Override
             public void onDeleteCLick(int position) {
                 confirmDeletion(position);
-                Toast.makeText(getApplicationContext(), "Delete " + position, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -187,6 +196,11 @@ public class ContactActivity extends AppCompatActivity {
         }
         else{
             Intent intent = new Intent(ContactActivity.this, ContactAdd_UpdateActivity.class);
+            intent.putExtra("editor", true);
+            String name = contact.getName();
+            String phone = contact.getPhone();
+            intent.putExtra("name", name);
+            intent.putExtra("phone", phone);
             startActivityForResult(intent, position);
         }
 

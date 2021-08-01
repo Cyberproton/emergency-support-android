@@ -4,38 +4,59 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/comfort_background"
     tools:context=".contact.ContactAdd_UpdateActivity">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/contact_add_title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="30dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:fontFamily="@font/comfortaa_light"
+        android:text="THÊM SỐ "
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="64dp"
+        android:gravity="center"
         android:orientation="vertical"
-        android:gravity="center">
+        android:padding="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/contact_add_title">
 
         <TextView
+            android:id="@+id/input_name_warning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/input_name_warning"
-            android:textColor="#FF0000"/>
+            android:textColor="#FF0000" />
 
         <EditText
-            android:background="@drawable/register_edit_text_background"
-            android:drawableStart="@drawable/ic_baseline_person_24"
+            android:id="@+id/contact_input_name"
             android:layout_width="match_parent"
             android:layout_height="46dp"
+            android:background="@drawable/register_edit_text_background"
+            android:drawableStart="@drawable/ic_baseline_person_24"
             android:ems="10"
             android:hint="Username"
-            tools:ignore="HardcodedText"
             android:importantForAutofill="no"
             android:padding="6dp"
-            android:id="@+id/contact_input_name"/>
+            tools:ignore="HardcodedText" />
 
         <TextView
+            android:id="@+id/input_phone_warning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/input_phone_warning"
-            android:textColor="#FF0000"/>
+            android:textColor="#FF0000" />
 
         <EditText
             android:id="@+id/contact_input_phone"
@@ -49,13 +70,13 @@
             android:padding="6dp" />
 
         <Button
-            app:backgroundTint="@null"
-            android:background="@drawable/custom_menu_button"
-            android:layout_marginTop="30dp"
+            android:id="@+id/contact_input_confirm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/custom_menu_button"
             android:text="Xác nhận"
-            android:id="@+id/contact_input_confirm"/>
+            app:backgroundTint="@null" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

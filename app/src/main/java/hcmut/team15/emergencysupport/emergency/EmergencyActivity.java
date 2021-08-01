@@ -35,9 +35,6 @@ public class EmergencyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_emergency);
         helpRequestInterface = MainApplication.getInstance().getRetrofit().create(HelpRequestInterface.class);
-        findViewById(R.id.signal_button).setOnClickListener(view -> {
-
-        });
         btn_menu = findViewById(R.id.btn_menu);
         btn_emergency = findViewById(R.id.btn_emergency);
         btn_menu.setOnClickListener(v -> {

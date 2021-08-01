@@ -8,6 +8,7 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -37,6 +38,7 @@ import java.util.Map;
 
 import hcmut.team15.emergencysupport.MainApplication;
 import hcmut.team15.emergencysupport.R;
+import hcmut.team15.emergencysupport.call.CallActivity;
 import hcmut.team15.emergencysupport.model.Case;
 import hcmut.team15.emergencysupport.model.Location;
 import hcmut.team15.emergencysupport.model.User;
@@ -62,12 +64,17 @@ public class VolunteerActivity extends AppCompatActivity {
     private String caseId;
     private Case cs;
     private TextView name;
+    private TextView nameLabel;
     private TextView phone;
+    private TextView phoneLabel;
     private TextView address;
+    private TextView addressLabel;
     private TextView dateOfBirth;
+    private TextView dateOfBirthLabel;
     private TextView bloodType;
-    private TextView anamnesis;
+    private TextView bloodTypeLabel;
     private TextView allergens;
+    private TextView allergensLabel;
     private TextView distance;
     private Button acceptVolunteerButton;
     private Button stopVolunteerButton;
@@ -95,12 +102,17 @@ public class VolunteerActivity extends AppCompatActivity {
         super.onStart();
         bindService(new Intent(this, EmergencyService.class), emergencyServiceConnection, BIND_AUTO_CREATE);
         name = findViewById(R.id.volunteer_victim_name_content);
+        nameLabel = findViewById(R.id.volunteer_victim_name_label);
         phone = findViewById(R.id.volunteer_victim_phone_content);
+        phoneLabel = findViewById(R.id.volunteer_victim_phone_label);
         address = findViewById(R.id.volunteer_victim_address_content);
+        addressLabel = findViewById(R.id.volunteer_victim_address_label);
         dateOfBirth = findViewById(R.id.volunteer_victim_dateofbirth_content);
+        dateOfBirthLabel = findViewById(R.id.volunteer_victim_dateofbirth_label);
         bloodType = findViewById(R.id.volunteer_victim_bloodtype_content);
-        anamnesis = findViewById(R.id.volunteer_victim_anamnesis_content);
+        bloodTypeLabel = findViewById(R.id.volunteer_victim_bloodtype_label);
         allergens = findViewById(R.id.volunteer_victim_allergens_content);
+        allergensLabel = findViewById(R.id.volunteer_victim_allergens_label);
         distance = findViewById(R.id.volunteer_victim_distance_content);
         acceptVolunteerButton = findViewById(R.id.volunteer_accept_btn);
         stopVolunteerButton = findViewById(R.id.volunteer_stop_btn);
@@ -146,6 +158,12 @@ public class VolunteerActivity extends AppCompatActivity {
     protected void onStop() {
         unbindService(emergencyServiceConnection);
         super.onStop();
+    }
+
+    public void onCaseClosed() {
+        Intent intent = new Intent(this, CallActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     public void onCaseUpdate() {
@@ -212,39 +230,63 @@ public class VolunteerActivity extends AppCompatActivity {
             User victim = cs.getCaller();
             Profile victimProfile = victim.getProfile();
 
-            if (victimProfile.getName() != null && !victimProfile.getName().isEmpty()) {
+            if (victimProfile != null && victimProfile.getName() != null && !victimProfile.getName().isEmpty()) {
+                nameLabel.setVisibility(View.VISIBLE);
+                name.setVisibility(View.VISIBLE);
                 name.setText(victimProfile.getName());
             } else {
+                nameLabel.setVisibility(View.GONE);
+                name.setVisibility(View.GONE);
                 name.setText(getString(R.string.volunteer_victim_name_content));
             }
 
-            if (victimProfile.getAddress() != null && !victimProfile.getAddress().isEmpty()) {
+            if (victimProfile != null && victimProfile.getAddress() != null && !victimProfile.getAddress().isEmpty()) {
+                addressLabel.setVisibility(View.VISIBLE);
+                address.setVisibility(View.VISIBLE);
                 address.setText(victimProfile.getAddress());
             } else {
+                addressLabel.setVisibility(View.GONE);
+                address.setVisibility(View.GONE);
                 address.setText(getString(R.string.volunteer_victim_address_content));
             }
 
-            if (victimProfile.getPhone() != null && !victimProfile.getPhone().isEmpty()) {
+            if (victimProfile != null && victimProfile.getPhone() != null && !victimProfile.getPhone().isEmpty()) {
+                phoneLabel.setVisibility(View.VISIBLE);
+                phone.setVisibility(View.VISIBLE);
                 phone.setText(victimProfile.getPhone());
             } else {
+                phoneLabel.setVisibility(View.GONE);
+                phone.setVisibility(View.GONE);
                 phone.setText(getString(R.string.volunteer_victim_phone_content));
             }
 
-            if (victimProfile.getDateOfBirth() != null && !victimProfile.getDateOfBirth().isEmpty()) {
+            if (victimProfile != null && victimProfile.getDateOfBirth() != null && !victimProfile.getDateOfBirth().isEmpty()) {
+                dateOfBirthLabel.setVisibility(View.VISIBLE);
+                dateOfBirth.setVisibility(View.VISIBLE);
                 dateOfBirth.setText(victimProfile.getDateOfBirth());
             } else {
+                dateOfBirthLabel.setVisibility(View.GONE);
+                dateOfBirth.setVisibility(View.GONE);
                 dateOfBirth.setText(getString(R.string.volunteer_victim_dateofbirth_content));
             }
 
-            if (victimProfile.getBloodType() != null && !victimProfile.getBloodType().isEmpty()) {
+            if (victimProfile != null && victimProfile.getBloodType() != null && !victimProfile.getBloodType().isEmpty()) {
+                bloodTypeLabel.setVisibility(View.VISIBLE);
+                bloodType.setVisibility(View.VISIBLE);
                 bloodType.setText(victimProfile.getBloodType());
             } else {
+                bloodTypeLabel.setVisibility(View.GONE);
+                bloodType.setVisibility(View.GONE);
                 bloodType.setText(getString(R.string.volunteer_victim_bloodtype_content));
             }
 
-            if (victimProfile.getAllergens() != null && !victimProfile.getAllergens().isEmpty()) {
+            if (victimProfile != null && victimProfile.getAllergens() != null && !victimProfile.getAllergens().isEmpty()) {
+                allergensLabel.setVisibility(View.VISIBLE);
+                allergens.setVisibility(View.VISIBLE);
                 allergens.setText(victimProfile.getAllergens());
             } else {
+                allergensLabel.setVisibility(View.GONE);
+                allergens.setVisibility(View.GONE);
                 allergens.setText(getString(R.string.volunteer_victim_allergens_content));
             }
         }

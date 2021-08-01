@@ -16,6 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -55,6 +56,12 @@ public class CallActivity extends AppCompatActivity {
             emergencyService = null;
         }
     };
+    private TextView allCallsLabel;
+    private TextView currentCallLabel;
+    private ConstraintLayout currentCallLayout;
+    private TextView callPersonPhoneLabel;
+    private TextView callPersonNameLabel;
+    private TextView callPersonDistanceLabel;
 
     @Override
     protected void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
@@ -66,6 +73,15 @@ public class CallActivity extends AppCompatActivity {
         callLayoutManager = new LinearLayoutManager(this);
         callRecycleView.setAdapter(callAdapter);
         callRecycleView.setLayoutManager(callLayoutManager);
+
+        allCallsLabel = findViewById(R.id.all_calls_label);
+        currentCallLabel = findViewById(R.id.current_calls_label);
+        currentCallLayout = findViewById(R.id.call_card_layout_red);
+        callPersonPhoneLabel = findViewById(R.id.call_person_phone_label_red);
+        callPersonNameLabel = findViewById(R.id.call_person_name_label_red);
+        callPersonDistanceLabel = findViewById(R.id.call_person_distance_label_red);
+        currentCallLabel.setVisibility(View.GONE);
+        currentCallLayout.setVisibility(View.GONE);
     }
 
     @Override
@@ -81,12 +97,39 @@ public class CallActivity extends AppCompatActivity {
     }
 
     public void onCasesUpdate(List<Case> cases) {
+        Case acceptedCase = emergencyService.getAcceptedCase();
+        if (acceptedCase == null) {
+            currentCallLabel.setVisibility(View.GONE);
+            currentCallLayout.setVisibility(View.GONE);
+            callPersonNameLabel.setText("");
+            callPersonPhoneLabel.setText("");
+            callPersonDistanceLabel.setText("? m");
+        } else {
+            currentCallLabel.setVisibility(View.VISIBLE);
+            currentCallLayout.setVisibility(View.VISIBLE);
+            User victim = acceptedCase.getCaller();
+            callPersonNameLabel.setText(victim.getUsername());
+            callPersonPhoneLabel.setText("");
+            String distance = "? m";
+            Location currentLocation = null;
+            if (MainApplication.getInstance().getLocationService() != null) {
+                currentLocation = new Location(MainApplication.getInstance().getLocationService().getLastLocation());
+            }
+            if (currentLocation != null && victim.getCurrentLocation() != null) {
+                distance = String.format(Locale.getDefault(), "%.1f", Location.distanceBetween(victim.getCurrentLocation(), currentLocation));
+                distance += "m";
+            }
+            callPersonDistanceLabel.setText(distance);
+        }
+
         calls.clear();
+        boolean hasCall = false;
         for (Case cs : cases) {
             User victim = cs.getCaller();
             if (victim.getUsername().equals(AccountManagement.getUsername())) {
                 continue;
             }
+            hasCall = true;
             String distance = "? m";
             Location currentLocation = null;
             if (MainApplication.getInstance().getLocationService() != null) {
@@ -97,6 +140,13 @@ public class CallActivity extends AppCompatActivity {
                 distance += "m";
             }
             calls.add(new Call(R.drawable.ic_baseline_person_24, cs.getId(), cs, victim.getUsername(), "", distance));
+        }
+        if (hasCall) {
+            allCallsLabel.setText("Tất cả:");
+            allCallsLabel.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+        } else {
+            allCallsLabel.setText("Có vẻ không có ai cả");
+            allCallsLabel.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         }
         callAdapter.notifyDataSetChanged();
     }
@@ -226,10 +276,10 @@ public class CallActivity extends AppCompatActivity {
         public CallViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
             view = itemView;
-            imageView = itemView.findViewById(R.id.call_person_image);
-            nameView = itemView.findViewById(R.id.call_person_name_label);
-            phoneView = itemView.findViewById(R.id.call_person_phone_label);
-            distanceView = itemView.findViewById(R.id.call_person_distance_label);
+            imageView = itemView.findViewById(R.id.call_person_image_red);
+            nameView = itemView.findViewById(R.id.call_person_name_label_red);
+            phoneView = itemView.findViewById(R.id.call_person_phone_label_red);
+            distanceView = itemView.findViewById(R.id.call_person_distance_label_red);
         }
     }
 }

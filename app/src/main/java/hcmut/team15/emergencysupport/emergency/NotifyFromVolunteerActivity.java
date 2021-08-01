@@ -96,17 +96,8 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
     private AlertDialog alertDialog;
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if (!getIntent().getBooleanExtra("startFromButton", false) || !started) {
-            return;
-        }
-        stopEmergency();
-        Toast.makeText(this, "Nhận tín hiệu từ BUTTON, dừng phát tín hiệu", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(getClass().getSimpleName(), "Activity Created");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notify_from_volunteer);
 
@@ -140,16 +131,20 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         Log.d(getClass().getSimpleName(), "Activity Started");
         super.onStart();
 
+        boolean startFromButton = getIntent().getBooleanExtra("startFromButton", false);
+
         if (started) {
+            finish();
             return;
         }
 
-        if (getIntent().getBooleanExtra("startFromButton", false)) {
+        if (startFromButton) {
             Toast.makeText(this, "Nhận tín hiệu từ BUTTON, bắt đầu phát tín hiệu", Toast.LENGTH_LONG).show();
         }
 
         bindService(new Intent(this, EmergencyService.class), emergencyServiceConnection, BIND_AUTO_CREATE);
         android.location.Location loc = MainApplication.getInstance().getLocationService().getLastLocation();
+        MainApplication.getInstance().registerNotifyFromVolunteerActivity(this);
 
         if (loc == null) {
             latestLocation = new Location(0, 0, 0);
@@ -287,12 +282,13 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         sb.show();
     }
 
-    private void stopEmergency() {
+    public void stopEmergency() {
         if (emergencyService != null) {
             emergencyService.stopEmergency();
         }
         Intent intent = new Intent(NotifyFromVolunteerActivity.this, EmergencyActivity.class);
         startActivity(intent);
+        MainApplication.getInstance().unregisterNotifyFromVolunteerActivity();
         finish();
     }
 

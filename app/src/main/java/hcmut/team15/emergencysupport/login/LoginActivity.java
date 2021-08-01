@@ -1,36 +1,39 @@
 package hcmut.team15.emergencysupport.login;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.accounts.Account;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.content.Intent;
-import android.widget.Button;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import android.widget.Toast;
-
+import hcmut.team15.emergencysupport.MainApplication;
 import hcmut.team15.emergencysupport.MenuActivity;
 import hcmut.team15.emergencysupport.R;
 import hcmut.team15.emergencysupport.register.RegisterActivity1;
-import hcmut.team15.emergencysupport.MainApplication;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
-
     private LoginInterface loginInterface;
     TextView t1;
+    TextView t2;
     public boolean logged_state = false;
+    private Call<LoginAnonymouslyResponse> loginCall;
+    private AlertDialog loginConfirmDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,11 +54,22 @@ public class LoginActivity extends AppCompatActivity {
                 Intent myIntent = new Intent(LoginActivity.this, RegisterActivity1.class);
                 startActivity(myIntent);
         });
-        //forgot password textview
-        TextView t3 = findViewById(R.id.f_password);
-        t3.setOnClickListener(view -> {
-                Intent myIntent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
-                startActivity(myIntent);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Đăng Nhập Ẩn Danh");
+        builder.setMessage("Mọi dữ liệu của tài khoản ẩn danh sẽ mất khi đăng xuất. Bạn có muốn tạo tài khoản ẩn danh");
+        builder.setPositiveButton("Đồng Ý", (dialog, which) -> {
+            loginAnonymously();
+        });
+        builder.setNegativeButton("Bỏ Qua", (dialog, which) -> {
+            dialog.cancel();
+        });
+        loginConfirmDialog = builder.create();
+
+        //login anonymously button
+        t2 = findViewById(R.id.login_anonymously_text);
+        t2.setOnClickListener(view -> {
+            loginConfirmDialog.show();
         });
 
         //sign-in button
@@ -73,8 +87,17 @@ public class LoginActivity extends AppCompatActivity {
                 Login(username, password);
             }
         });
-
     }
+
+    @Override
+    protected void onStop() {
+        if (this.loginCall != null) {
+            loginCall.cancel();
+            loginCall = null;
+        }
+        super.onStop();
+    }
+
     private void Login(String username, String password) {
         Map<String, String> body = new HashMap<>();
         body.put("username", username);
@@ -100,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
                 else {
-                    Toast.makeText(getApplicationContext(), "Username does not exist or password is incorrect", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Tên đăng nhập hoặc mật khẩu không đúng", Toast.LENGTH_LONG).show();
                 }
             }
             @Override
@@ -109,6 +132,41 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void loginAnonymously() {
+        loginCall = loginInterface.executeLoginAnonymously();
+        loginCall.enqueue(new Callback<LoginAnonymouslyResponse>() {
+            @Override
+            public void onResponse(@NotNull Call<LoginAnonymouslyResponse> call, @NotNull Response<LoginAnonymouslyResponse> response) {
+                if (response.isSuccessful()) {
+                    int code = response.code();
+                    if (code == 200 && response.body() != null) {
+                        AccountManagement.setUserLoggedInStatus(true);
+                        TokenVar.AccessToken = response.body().getAccessToken();
+                        AccountManagement.setPrefLoggedInUserEmail(TokenVar.AccessToken);
+                        TokenVar.RefreshToken = response.body().getRefreshToken();
+                        AccountManagement.setUsername(response.body().getUsername());
+                        if (MainApplication.getInstance().getEmergencyService() != null) {
+                            MainApplication.getInstance().getEmergencyService().createSocket();
+                        }
+                        Intent myIntent1 = new Intent(LoginActivity.this, MenuActivity.class);
+                        startActivity(myIntent1);
+                        finish();
+                    } else {
+
+                    }
+                }
+                LoginActivity.this.loginCall = null;
+            }
+
+            @Override
+            public void onFailure(@NotNull Call<LoginAnonymouslyResponse> call, @NotNull Throwable t) {
+                Toast.makeText(LoginActivity.this, "Có lỗi xảy ra", Toast.LENGTH_LONG).show();
+                LoginActivity.this.loginCall = null;
+            }
+        });
+    }
+
     // Click to change between (visible|invisible) of password text
     public void ShowHidePass(View view){
         EditText passwordText = findViewById(R.id.editTextTextPassword);

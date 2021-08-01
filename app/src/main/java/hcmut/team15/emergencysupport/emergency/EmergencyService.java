@@ -8,7 +8,6 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -19,7 +18,6 @@ import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import hcmut.team15.emergencysupport.MainApplication;
-import hcmut.team15.emergencysupport.MenuActivity;
 import hcmut.team15.emergencysupport.R;
 import hcmut.team15.emergencysupport.call.CallActivity;
 import hcmut.team15.emergencysupport.login.AccountManagement;
@@ -67,6 +64,7 @@ public class EmergencyService extends Service {
             float dist = Location.distanceBetween(cs.getCaller().getCurrentLocation(), volunteer.getCurrentLocation());
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
             notificationManager.notify(volunteerAcceptNotificationId, getVolunteerAcceptNotification(volunteer.getUsername(), dist));
+            EmergencyService.this.volunteerAcceptNotifications.put(volunteer.getUsername(), volunteerAcceptNotificationId);
             volunteerAcceptNotificationId++;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -79,9 +77,16 @@ public class EmergencyService extends Service {
             try {
                 JSONObject jsonCase = (JSONObject) args[1];
                 Case cs = new Gson().fromJson(jsonCase.toString(), Case.class);
+                JSONObject jsonVolunteer = (JSONObject) args[0];
+                User volunteer = new Gson().fromJson(jsonVolunteer.toString(), User.class);
                 handleCaseUpdate(cs);
                 if (this.notifyFromVolunteerActivity != null) {
                     this.notifyFromVolunteerActivity.onCaseClosed();
+                }
+                Integer notificationId = EmergencyService.this.volunteerAcceptNotifications.get(volunteer.getUsername());
+                if (notificationId != null) {
+                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                    notificationManager.cancel(notificationId);
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -119,15 +124,20 @@ public class EmergencyService extends Service {
             Gson gson = new Gson();
             Case cs = gson.fromJson(jsonCase.toString(), Case.class);
             if (this.asVolunteer && this.acceptedCase != null && this.acceptedCase.getId().equals(cs.getId())) {
+                this.asVolunteer = false;
+                this.asVictim = false;
                 this.acceptedCase = null;
+                if (this.volunteerActivity != null) {
+                    this.volunteerActivity.runOnUiThread(() -> this.volunteerActivity.onCaseClosed());
+                }
             }
             this.cases.remove(cs.getId());
-            Integer notificationId = EmergencyService.this.notifications.get(cs.getId());
+            Integer notificationId = EmergencyService.this.victimCallNotifications.get(cs.getId());
             if (notificationId != null) {
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
                 notificationManager.cancel(notificationId);
             }
-            EmergencyService.this.notifications.remove(cs.getId());
+            EmergencyService.this.victimCallNotifications.remove(cs.getId());
             handleCaseUpdate();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -161,7 +171,7 @@ public class EmergencyService extends Service {
                 float dist = Location.distanceBetween(cs.getCaller().getCurrentLocation(), you.getCurrentLocation());
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
                 notificationManager.notify(victimCallNotificationId, getVictimCallNotification(dist, cs));
-                EmergencyService.this.notifications.put(cs.getId(), victimCallNotificationId);
+                EmergencyService.this.victimCallNotifications.put(cs.getId(), victimCallNotificationId);
                 victimCallNotificationId++;
             }
         } catch (Exception ex) {
@@ -171,7 +181,8 @@ public class EmergencyService extends Service {
 
     private final LocalBinder serviceBinder = new LocalBinder();
     private final Map<String, Case> cases = new HashMap<>();
-    private final Map<String, Integer> notifications = new HashMap<>();
+    private final Map<String, Integer> victimCallNotifications = new HashMap<>();
+    private final Map<String, Integer> volunteerAcceptNotifications = new HashMap<>();
 
     private Socket socket;
     private boolean isEmergencyStart;
@@ -184,6 +195,7 @@ public class EmergencyService extends Service {
 
     private static int victimCallNotificationId = 1000;
     private static int volunteerAcceptNotificationId = 2000;
+    private static int emergencyNotificationId = 999;
     private NotifyFromVolunteerActivity notifyFromVolunteerActivity;
     private EmergencyCaseActivity emergencyCaseActivity;
     private CallActivity callActivity;
@@ -352,6 +364,8 @@ public class EmergencyService extends Service {
             return;
         }
         socket.emit("startEmergency");
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(emergencyNotificationId, getEmergencyNotification());
         Log.i("EmergencyService", "Emergency Started");
         asVictim = true;
         asVolunteer = false;
@@ -370,6 +384,8 @@ public class EmergencyService extends Service {
         try {
             JSONObject jsonCase = new JSONObject(new Gson().toJson(callingCase, Case.class));
             socket.emit("stopEmergency", jsonCase);
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            notificationManager.cancel(emergencyNotificationId);
             callingCase = null;
             asVictim = false;
             asVolunteer = false;
@@ -556,6 +572,15 @@ public class EmergencyService extends Service {
                 .setSmallIcon(R.drawable.ic_baseline_directions_run_24)
                 .setContentTitle("Tình nguyện viên đang đến")
                 .setContentText(name + " đang đến. Cách bạn " + String.format("%.1f", distance) + " m")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .build();
+    }
+
+    private Notification getEmergencyNotification() {
+        return new NotificationCompat.Builder(this, "emergency-support-volunteer-accept")
+                .setSmallIcon(R.drawable.ic_baseline_settings_input_antenna_24)
+                .setContentTitle("Bạn đang phát tín hiệu")
+                .setContentText("Bạn đang phát tín hiệu")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build();
     }

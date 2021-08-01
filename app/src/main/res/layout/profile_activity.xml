@@ -63,19 +63,28 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
                 android:labelFor="@+id/editTextName"
-                android:text="Name"
+                android:text="Tên"
+                android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/editTextName"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.085"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView4"
-                app:layout_constraintVertical_bias="0.0"
                 tools:ignore="HardcodedText" />
+
+            <Switch
+                android:id="@+id/nameVisibility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:minHeight="48dp"
+                android:text="@string/profile_attribute_hide"
+                android:textColor="?android:attr/textColorSecondary" />
 
             <EditText
                 android:id="@+id/editTextName"
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
+                android:layout_height="48dp"
                 android:layout_marginLeft="6dp"
                 android:layout_marginRight="6dp"
                 android:layout_marginBottom="12dp"
@@ -84,8 +93,8 @@
                 android:drawableStart="@drawable/ic_baseline_person_24"
                 android:ems="10"
                 android:importantForAutofill="yes"
-                android:padding="6dp"
                 android:inputType="textCapCharacters"
+                android:padding="6dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.666"
@@ -99,24 +108,37 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
                 android:labelFor="@+id/editTextPhoneNumber"
-                android:text="Phone Number"
+                android:text="Số Điện Thoại"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.09"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/editTextPhoneNumber"
                 tools:ignore="HardCodedText" />
 
+            <Switch
+                android:id="@+id/phoneVisibility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:minHeight="48dp"
+                android:text="@string/profile_attribute_hide"
+                android:textColor="?android:attr/textColorSecondary" />
+
             <EditText
                 android:id="@+id/editTextPhoneNumber"
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
+                android:layout_height="48dp"
                 android:layout_marginLeft="6dp"
                 android:layout_marginRight="6dp"
                 android:layout_marginBottom="12dp"
                 android:background="@drawable/register_edit_text_background"
                 android:drawableStart="@drawable/ic_baseline_phone_24"
                 android:importantForAutofill="no"
+                android:inputType="number"
                 android:padding="6dp"
                 tools:ignore="HardcodedText"
                 tools:layout_editor_absoluteX="12dp"
@@ -127,18 +149,30 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
                 android:labelFor="@+id/editTextAddress"
-                android:text="Address"
+                android:text="Địa Chỉ"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.09"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/editTextAddress"
                 tools:ignore="HardcodedText" />
 
+            <Switch
+                android:id="@+id/addressVisibility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:minHeight="48dp"
+                android:text="@string/profile_attribute_hide"
+                android:textColor="?android:attr/textColorSecondary" />
+
             <EditText
                 android:id="@+id/editTextAddress"
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
+                android:layout_height="48dp"
                 android:layout_marginLeft="6dp"
                 android:layout_marginRight="6dp"
                 android:layout_marginBottom="12dp"
@@ -156,23 +190,39 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
                 android:labelFor="@+id/editTextBirthDay"
-                android:text="Date of Birth"
+                android:text="Ngày Sinh"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.045"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/editTextBirthDay"
                 tools:ignore="HardcodedText" />
 
+            <Switch
+                android:id="@+id/dateOfBirthVisibility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:minHeight="48dp"
+                android:text="@string/profile_attribute_hide"
+                android:textColor="?android:attr/textColorSecondary" />
+
             <EditText
                 android:id="@+id/editTextBirthDay"
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
+                android:layout_height="48dp"
                 android:layout_marginLeft="6dp"
                 android:layout_marginRight="6dp"
                 android:layout_marginBottom="12dp"
                 android:background="@drawable/register_edit_text_background"
+                android:clickable="false"
+                android:cursorVisible="false"
                 android:drawableStart="@drawable/ic_baseline_calendar_today_24"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:importantForAutofill="no"
                 android:inputType="date"
                 android:padding="6dp"
@@ -187,17 +237,29 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
                 android:labelFor="@+id/editTextBloodType"
-                android:text="Blood type"
+                android:text="Nhóm Máu"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/editTextBloodType"
                 tools:ignore="HardcodedText" />
 
+            <Switch
+                android:id="@+id/bloodTypeVisibility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:minHeight="48dp"
+                android:text="@string/profile_attribute_hide"
+                android:textColor="?android:attr/textColorSecondary" />
+
             <EditText
                 android:id="@+id/editTextBloodType"
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
+                android:layout_height="48dp"
                 android:layout_marginLeft="6dp"
                 android:layout_marginRight="6dp"
                 android:layout_marginBottom="12dp"
@@ -215,18 +277,30 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
                 android:labelFor="@+id/editTextAllergy"
-                android:text="Allergy"
+                android:text="Dị Ứng"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.09"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/editTextName"
                 tools:ignore="HardcodedText" />
 
+            <Switch
+                android:id="@+id/allergensVisibility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:minHeight="48dp"
+                android:text="@string/profile_attribute_hide"
+                android:textColor="?android:attr/textColorSecondary" />
+
             <EditText
                 android:id="@+id/editTextAllergy"
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
+                android:layout_height="48dp"
                 android:layout_marginLeft="6dp"
                 android:layout_marginRight="6dp"
                 android:background="@drawable/register_edit_text_background"
@@ -247,14 +321,15 @@
 
     <Button
         android:id="@+id/apply_btn"
-        android:layout_width="176dp"
-        android:layout_height="46dp"
-        android:text="Apply changes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Cập Nhật"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintVertical_bias="1.0"
         tools:ignore="HardcodedText" />
 
 

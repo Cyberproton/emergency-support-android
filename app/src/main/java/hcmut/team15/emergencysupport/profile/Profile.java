@@ -4,17 +4,29 @@ public class Profile {
     String name;
     String phone;
     String address;
-    String allergens;
     String dateOfBirth;
     String bloodType;
+    String allergens;
+    boolean nameVisibility;
+    boolean phoneVisibility;
+    boolean addressVisibility;
+    boolean dateOfBirthVisibility;
+    boolean bloodTypeVisibility;
+    boolean allergensVisibility;
 
-    public Profile(String name, String phone, String address, String allergens, String dateOfBirth, String bloodType) {
+    public Profile(String name, String phone, String address, String dateOfBirth, String bloodType, String allergens, boolean nameVisibility, boolean phoneVisibility, boolean addressVisibility, boolean dateOfBirthVisibility, boolean bloodTypeVisibility, boolean allergensVisibility) {
         this.name = name;
         this.phone = phone;
         this.address = address;
-        this.allergens = allergens;
         this.dateOfBirth = dateOfBirth;
         this.bloodType = bloodType;
+        this.allergens = allergens;
+        this.nameVisibility = nameVisibility;
+        this.phoneVisibility = phoneVisibility;
+        this.addressVisibility = addressVisibility;
+        this.dateOfBirthVisibility = dateOfBirthVisibility;
+        this.bloodTypeVisibility = bloodTypeVisibility;
+        this.allergensVisibility = allergensVisibility;
     }
 
     public String getName() {

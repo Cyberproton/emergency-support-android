@@ -2,20 +2,21 @@
     <string name="server_url">https://nameless-tor-76402.herokuapp.com/</string>
     <string name="server_url_emulator">http://10.0.2.2:3000</string>
     <string name="app_name">EmergencySupport</string>
-    <string name="login_btn">SIGN IN</string>
-    <string name="register_btn">REGISTER</string>
-    <string name="sign_up">SIGN UP</string>
+    <string name="login_btn">ĐĂNG NHẬP</string>
+    <string name="login_anonymously">ĐANG NHẬP ẨN DANH</string>
+    <string name="register_btn">ĐĂNG KÍ</string>
+    <string name="sign_up">ĐĂNG KÍ</string>
     <string name="email_txt"> Email:</string>
-    <string name="password"> Password:</string>
-    <string name="create_account">Create Account</string>
-    <string name="login_account">Login</string>
-    <string name="name"><font size="15px"> Name:</font></string>
-    <string name="birth_day"> Birth Day:</string>
-    <string name="phone_num"> Phone Number:</string>
+    <string name="password"> Mật Khẩu:</string>
+    <string name="create_account">Tạo Tài Khoản</string>
+    <string name="login_account">Đăng Nhập</string>
+    <string name="name"><font size="15px"> Tên:</font></string>
+    <string name="birth_day"> Ngày Sinh:</string>
+    <string name="phone_num"> Số Điện Thoại:</string>
     <string name="content_description_arrow_back_image">Back Arrow</string>
-    <string name="register_create">Create</string>
+    <string name="register_create">Tạo Tài Khoản</string>
     <string name="create_account_via_social_media">Create account using social media</string>
-    <string name="register_notice">"Don\'t have an account?"</string>
+    <string name="register_notice">"Bạn chưa có tài khoản?"</string>
     <string name="fb_btn">Facebook</string>
     <string name="tw_btn">Twitter</string>
     <string name="google_btn">Google</string>
@@ -36,4 +37,6 @@
     <string name="volunteer_victim_anamnesis_content">Không rõ</string>
     <string name="volunteer_victim_allergens_label">Dị ứng</string>
     <string name="volunteer_victim_allergens_content">Không rõ</string>
+    <string name="profile_attribute_show">Hiển thị: Công khai</string>
+    <string name="profile_attribute_hide">Hiển thị: Riêng tư</string>
 </resources>

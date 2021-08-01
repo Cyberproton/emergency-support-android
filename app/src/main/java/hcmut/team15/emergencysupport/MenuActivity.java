@@ -2,7 +2,6 @@ package hcmut.team15.emergencysupport;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.session.MediaSession;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -54,7 +53,6 @@ public class MenuActivity extends AppCompatActivity {
         contact.setOnClickListener(view ->{
             Intent myIntent = new Intent(MenuActivity.this, ContactActivity.class);
             startActivity(myIntent);
-
         });
 
         Button settings = findViewById(R.id.menu_settings_btn);
@@ -139,6 +137,7 @@ public class MenuActivity extends AppCompatActivity {
         alertDialogBuilder.setTitle("Xác nhận đăng xuất");
         String message = "";
         message += "Nếu đăng xuất, bạn sẽ ngừng phát tín hiệu hoặc ngừng trợ giúp người khác (nếu có)\n\n";
+        message += "Nếu bạn đăng nhập ẩn danh, mọi dữ liệu sẽ bị mất\n\n";
         message += "Bạn có chắc muốn đăng xuất?\n";
         alertDialogBuilder.setMessage(message);
         alertDialogBuilder.setPositiveButton("Xác nhận", (dialog, which) -> {

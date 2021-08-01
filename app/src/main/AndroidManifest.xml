@@ -29,7 +29,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyANPkkThf1aanUc6CMz9SVwb-9mKGbnh2g" />
 
-        <activity android:name=".emergency.NotifyFromVolunteerActivity" android:launchMode="singleTop"/>
+        <activity android:name=".emergency.NotifyFromVolunteerActivity"/>
         <activity android:name=".emergency.CoundownActivity" />
         <activity android:name=".MenuActivity" />
         <activity android:name=".register.RegisterActivity1" />
@@ -37,10 +37,10 @@
         <activity android:name=".emergency.EmergencyCaseActivity" />
         <activity android:name=".call.CallActivity" />
         <activity android:name=".emergency.VolunteerActivity" />
-        <activity android:name=".contact.ContactActivity" />
+        <activity android:name=".contact.ContactActivity" android:windowSoftInputMode="adjustNothing"/>
         <activity android:name=".MainActivity" />
         <activity android:name=".login.ForgotPasswordActivity" />
-        <activity android:name=".profile.ProfileActivity" />
+        <activity android:name=".profile.ProfileActivity" android:windowSoftInputMode="adjustNothing"/>
         <activity android:name=".setting.ActivitySettings" />
         <activity android:name=".login.LoginActivity">
             <intent-filter>
@@ -54,7 +54,8 @@
                 android:resource="@xml/device_filter" />
         </activity>
 
-        <service android:name="org.eclipse.paho.android.service.MqttService" />
+        <service android:name="org.eclipse.paho.android.service.MqttService"
+            android:foregroundServiceType="dataSync"/>
         <service
             android:name=".location.LocationService"
             android:foregroundServiceType="location" />

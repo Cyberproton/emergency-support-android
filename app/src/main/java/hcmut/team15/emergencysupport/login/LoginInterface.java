@@ -15,4 +15,6 @@ public interface LoginInterface {
     @POST("/api/login")
     Call<LoginResponse> executeLogin(@Body Map<String, String> body);
 
+    @POST("/api/login/anonymous")
+    Call<LoginAnonymouslyResponse> executeLoginAnonymously();
 }

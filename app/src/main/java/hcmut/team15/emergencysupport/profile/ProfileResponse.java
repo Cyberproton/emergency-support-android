@@ -2,7 +2,7 @@ package hcmut.team15.emergencysupport.profile;
 
 public class ProfileResponse {
     private Profile profile;
-    String error;
+    private String error;
 
     public ProfileResponse(Profile profile, String error) {
         this.profile = profile;
