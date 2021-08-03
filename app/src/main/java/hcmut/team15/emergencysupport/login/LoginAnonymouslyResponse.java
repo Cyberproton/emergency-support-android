@@ -1,6 +1,9 @@
 package hcmut.team15.emergencysupport.login;
 
+import com.google.gson.annotations.SerializedName;
+
 public class LoginAnonymouslyResponse {
+    @SerializedName("user")
     private String username;
     private String password;
     private String accessToken;
@@ -22,6 +25,10 @@ public class LoginAnonymouslyResponse {
     }
 
     public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setUser(String username) {
         this.username = username;
     }
 

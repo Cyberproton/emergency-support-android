@@ -58,6 +58,32 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/volunteer_victim_username_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:drawableStart="@drawable/ic_baseline_person_24"
+                android:text="@string/volunteer_victim_username_label"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/volunteer_victim_username_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/border"
+                android:padding="8dp"
+                android:text="@string/volunteer_victim_username_content"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_view_label_name" />
+
+            <TextView
                 android:id="@+id/volunteer_victim_distance_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

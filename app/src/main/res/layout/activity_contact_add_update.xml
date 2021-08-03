@@ -47,7 +47,7 @@
             android:background="@drawable/register_edit_text_background"
             android:drawableStart="@drawable/ic_baseline_person_24"
             android:ems="10"
-            android:hint="Username"
+            android:hint="Tên"
             android:importantForAutofill="no"
             android:padding="6dp"
             tools:ignore="HardcodedText" />

@@ -63,6 +63,8 @@ public class VolunteerActivity extends AppCompatActivity {
     };
     private String caseId;
     private Case cs;
+    private TextView username;
+    private TextView usernameLabel;
     private TextView name;
     private TextView nameLabel;
     private TextView phone;
@@ -101,6 +103,8 @@ public class VolunteerActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         bindService(new Intent(this, EmergencyService.class), emergencyServiceConnection, BIND_AUTO_CREATE);
+        username = findViewById(R.id.volunteer_victim_username_content);
+        usernameLabel = findViewById(R.id.volunteer_victim_username_label);
         name = findViewById(R.id.volunteer_victim_name_content);
         nameLabel = findViewById(R.id.volunteer_victim_name_label);
         phone = findViewById(R.id.volunteer_victim_phone_content);
@@ -229,6 +233,8 @@ public class VolunteerActivity extends AppCompatActivity {
         if (cs != null) {
             User victim = cs.getCaller();
             Profile victimProfile = victim.getProfile();
+
+            username.setText(victim.getUsername());
 
             if (victimProfile != null && victimProfile.getName() != null && !victimProfile.getName().isEmpty()) {
                 nameLabel.setVisibility(View.VISIBLE);

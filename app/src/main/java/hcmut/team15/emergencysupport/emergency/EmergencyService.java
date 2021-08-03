@@ -261,12 +261,20 @@ public class EmergencyService extends Service {
     public void disconnectSocket() {
         stopEmergency();
         stopVolunteer();
-
+        cases.clear();
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        for (Map.Entry<String, Integer> entry : victimCallNotifications.entrySet()) {
+            notificationManager.cancel(entry.getValue());
+        }
+        for (Map.Entry<String, Integer> entry : volunteerAcceptNotifications.entrySet()) {
+            notificationManager.cancel(entry.getValue());
+        }
         if (socket == null) {
             return;
         }
         try {
             socket.disconnect();
+            socket = null;
             Log.d("EmergencyService", "Socket IO Client disconnected from server");
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -386,6 +394,10 @@ public class EmergencyService extends Service {
             socket.emit("stopEmergency", jsonCase);
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
             notificationManager.cancel(emergencyNotificationId);
+            for (int nid : volunteerAcceptNotifications.values()) {
+                notificationManager.cancel(nid);
+            }
+            cases.remove(callingCase.getId());
             callingCase = null;
             asVictim = false;
             asVolunteer = false;
@@ -544,7 +556,6 @@ public class EmergencyService extends Service {
                 .setContentText("Dịch vụ đang chạy ngầm")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(Notification.CATEGORY_SERVICE)
-                .addAction(R.mipmap.ic_launcher, "Đi đến phát tín hiệu", startEmergencyActivityIntent)
                 //.addAction(R.mipmap.ic_launcher_round, "Tắt dịch vụ", stopServicePendingIntent)
                 .build();
     }

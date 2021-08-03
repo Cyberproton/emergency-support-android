@@ -16,6 +16,7 @@ import java.util.Map;
 
 import hcmut.team15.emergencysupport.MainActivity;
 import hcmut.team15.emergencysupport.MainApplication;
+import hcmut.team15.emergencysupport.MenuActivity;
 import hcmut.team15.emergencysupport.R;
 import hcmut.team15.emergencysupport.login.LoginActivity;
 import hcmut.team15.emergencysupport.login.LoginInterface;
@@ -64,7 +65,7 @@ public class RegisterActivity1 extends AppCompatActivity {
                         public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
                             if (response.isSuccessful()){
                                 if (response.code() == 201){
-                                    Intent myIntent = new Intent(RegisterActivity1.this, MainActivity.class);
+                                    Intent myIntent = new Intent(RegisterActivity1.this, LoginActivity.class);
                                     startActivity(myIntent);
                                 }
                                 else if(response.code() == 500){

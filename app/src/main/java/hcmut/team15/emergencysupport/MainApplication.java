@@ -87,7 +87,9 @@ public class MainApplication extends Application implements Application.Activity
     }
 
     private void createButtonTriggerService() {
-        mqttService = new MqttService(this, "cyberproton/feeds/button", "cyberproton/feeds/led" );
+        String touchFeed = getString(R.string.touch_feed);
+        String ledFeed = getString(R.string.led_feed);
+        mqttService = new MqttService(this, touchFeed, ledFeed);
         mqttService.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
@@ -103,32 +105,38 @@ public class MainApplication extends Application implements Application.Activity
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 String m = message.toString();
                 Log.d("MqttService", "Receive message from topic=" + topic + " and message=" + message.toString());
-                JsonObject json = new JsonParser().parse(m).getAsJsonObject();
-                String id = json.get("id").getAsString();
-                String name = json.get("name").getAsString();
-                String data = json.get("data").getAsString();
-                String unit = json.get("unit").getAsString();
 
-                Log.d("MqttService", "id: " + json.get("id").getAsString());
-                Log.d("MqttService", "name: " + json.get("name").getAsString());
-                Log.d("MqttService", "data: " + json.get("data").getAsString());
-                Log.d("MqttService", "unit: " + json.get("unit").getAsString());
+                if (topic.equals(touchFeed)) {
+                    JsonObject json = new JsonParser().parse(m).getAsJsonObject();
+                    String id = json.get("id").getAsString();
+                    String name = json.get("name").getAsString();
+                    String data = json.get("data").getAsString();
+                    String unit = json.get("unit").getAsString();
 
-                if (name.equals("BUTTON") && data.equals("1")) {
-                    if (emergencyService != null && ActivitySettings.isListenToButtonTrigger() && AccountManagement.getUserLoggedInStatus()) {
-                        if (coundownActivity != null) {
-                            coundownActivity.cancel();
-                        }
-                        if (notifyFromVolunteerActivity == null) {
-                            Log.d(MainApplication.class.getSimpleName(), "Start from button");
-                            Intent intent = new Intent(MainApplication.this, NotifyFromVolunteerActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent.putExtra("startFromButton", true);
-                            startActivity(intent);
-                        } else {
-                            Log.d(MainApplication.class.getSimpleName(), "Stop from button");
-                            notifyFromVolunteerActivity.stopEmergency();
-                            Toast.makeText(MainApplication.this, "Nhận tín hiệu từ BUTTON, dừng phát tín hiệu", Toast.LENGTH_LONG).show();
+                    Log.d("MqttService", "id: " + json.get("id").getAsString());
+                    Log.d("MqttService", "name: " + json.get("name").getAsString());
+                    Log.d("MqttService", "data: " + json.get("data").getAsString());
+                    Log.d("MqttService", "unit: " + json.get("unit").getAsString());
+
+                    if (name.equals("TOUCH") && data.equals("1")) {
+                        Log.d(MainApplication.class.getSimpleName(), "Perform check: ");
+                        if (emergencyService != null && ActivitySettings.isListenToButtonTrigger() && AccountManagement.getUserLoggedInStatus()) {
+                            Log.d(MainApplication.class.getSimpleName(), "Checking countdown");
+                            if (coundownActivity != null) {
+                                coundownActivity.cancel();
+                            }
+                            Log.d(MainApplication.class.getSimpleName(), "Checking NotificationFromVolunteer");
+                            if (notifyFromVolunteerActivity == null) {
+                                Log.d(MainApplication.class.getSimpleName(), "Start from button");
+                                Intent intent = new Intent(MainApplication.this, NotifyFromVolunteerActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                intent.putExtra("startFromButton", true);
+                                startActivity(intent);
+                            } else {
+                                Log.d(MainApplication.class.getSimpleName(), "Stop from button");
+                                notifyFromVolunteerActivity.stopEmergency();
+                                Toast.makeText(MainApplication.this, "Nhận tín hiệu từ " + name + ", dừng phát tín hiệu", Toast.LENGTH_LONG).show();
+                            }
                         }
                     }
                 }

@@ -21,6 +21,8 @@
     <string name="tw_btn">Twitter</string>
     <string name="google_btn">Google</string>
     <string name="victim_calls_label">NGƯỜI CẦN TRỢ GIÚP</string>
+    <string name="volunteer_victim_username_label">Username người dùng</string>
+    <string name="volunteer_victim_username_content">Không rõ username</string>
     <string name="volunteer_victim_distance_label">Khoảng cách đến bạn</string>
     <string name="volunteer_victim_distance_content">Không rõ khoảng cách</string>
     <string name="volunteer_victim_name_label">Tên</string>

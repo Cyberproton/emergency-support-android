@@ -139,7 +139,7 @@ public class NotifyFromVolunteerActivity extends AppCompatActivity {
         }
 
         if (startFromButton) {
-            Toast.makeText(this, "Nhận tín hiệu từ BUTTON, bắt đầu phát tín hiệu", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Nhận tín hiệu từ feed, bắt đầu phát tín hiệu", Toast.LENGTH_LONG).show();
         }
 
         bindService(new Intent(this, EmergencyService.class), emergencyServiceConnection, BIND_AUTO_CREATE);

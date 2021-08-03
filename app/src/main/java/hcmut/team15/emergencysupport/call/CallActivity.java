@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 
 import hcmut.team15.emergencysupport.MainApplication;
+import hcmut.team15.emergencysupport.MenuActivity;
 import hcmut.team15.emergencysupport.R;
 import hcmut.team15.emergencysupport.emergency.EmergencyService;
 import hcmut.team15.emergencysupport.emergency.VolunteerActivity;
@@ -82,17 +84,27 @@ public class CallActivity extends AppCompatActivity {
         callPersonDistanceLabel = findViewById(R.id.call_person_distance_label_red);
         currentCallLabel.setVisibility(View.GONE);
         currentCallLayout.setVisibility(View.GONE);
+
+        Button menuButton = findViewById(R.id.call_menu_btn);
+        menuButton.setOnClickListener(view -> {
+            Intent intent = new Intent(this, MenuActivity.class);
+            startActivity(intent);
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        calls.clear();
+        callAdapter.notifyDataSetChanged();
         bindService(new Intent(this, EmergencyService.class), emergencyServiceConnection, BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
         unbindService(emergencyServiceConnection);
+        calls.clear();
+        callAdapter.notifyDataSetChanged();
         super.onStop();
     }
 

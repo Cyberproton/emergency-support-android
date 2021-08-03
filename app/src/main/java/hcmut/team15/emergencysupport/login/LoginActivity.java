@@ -140,7 +140,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(@NotNull Call<LoginAnonymouslyResponse> call, @NotNull Response<LoginAnonymouslyResponse> response) {
                 if (response.isSuccessful()) {
                     int code = response.code();
-                    if (code == 200 && response.body() != null) {
+                    if (code == 200) {
                         AccountManagement.setUserLoggedInStatus(true);
                         TokenVar.AccessToken = response.body().getAccessToken();
                         AccountManagement.setPrefLoggedInUserEmail(TokenVar.AccessToken);
